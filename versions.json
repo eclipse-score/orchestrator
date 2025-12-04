@@ -2,5 +2,9 @@
   {
     "version": "main",
     "url": "https://eclipse-score.github.io/orchestrator/main/"
+  },
+  {
+    "version": "pr-50",
+    "url": "https://eclipse-score.github.io/orchestrator/pr-50/"
   }
 ]
