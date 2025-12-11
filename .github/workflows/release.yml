@@ -1,0 +1,84 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+name: Release Verification
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  archive-report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # required to upload release assets
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Bazel with shared caching
+        uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          disk-cache: true
+          repository-cache: true
+          bazelisk-cache: true
+
+      - name: Bazel info (discover paths)
+        id: bazel-info
+        run: |
+          echo "BAZEL_OUTPUT_BASE=$(bazel info output_base)" >> $GITHUB_ENV
+          echo "BAZEL_USER_ROOT=$(bazel info output_user_root)" >> $GITHUB_ENV
+          echo "BAZEL_REPO_CACHE=$(bazel info repository_cache)" >> $GITHUB_ENV
+          bazel info
+
+      - name: Cache Bazel output base
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.BAZEL_OUTPUT_BASE }}/action_cache
+            ${{ env.BAZEL_OUTPUT_BASE }}/bazel-out
+            ${{ env.BAZEL_OUTPUT_BASE }}/external
+            ${{ env.BAZEL_OUTPUT_BASE }}/execroot
+          key: bazel-ob-v2-${{ runner.os }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'MODULE.bazel.lock', '**/*.bzl', 'Cargo.lock') }}
+          restore-keys: |
+            bazel-ob-v2-${{ runner.os }}-
+
+      - name: Build via Bazel
+        run: |
+          echo "Running: bazel build //src/..."
+          bazel build //src/...
+
+      - name: Run Unit Tests via Bazel
+        run: |
+          echo "Running: bazel test //:unit_tests"
+          bazel test //:unit_tests
+
+      - name: Create archive of test report
+        run: |
+          mkdir -p artifacts
+          cp -r --parents bazel-testlogs/src/**/test.xml artifacts/
+          zip -r ${{ github.event.repository.name }}_coverage_report.zip artifacts/
+        shell: bash
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}_coverage_report.zip
+          path: ${{ github.event.repository.name }}_coverage_report.zip
+
+      - name: Upload release asset (attach ZIP to GitHub Release)
+        uses: softprops/action-gh-release@v2.5.0
+        with:
+          files: ${{ github.event.repository.name }}_coverage_report.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

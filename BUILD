@@ -11,7 +11,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@score_docs_as_code//:docs.bzl", "docs")
-load("@score_toolchains_qnx//rules/fs:ifs.bzl", "qnx_ifs")
 load("@score_tooling//:defs.bzl", "copyright_checker", "dash_license_checker", "setup_starpls", "use_format_targets")
 load("//:project_config.bzl", "PROJECT_CONFIG")
 
@@ -87,4 +86,21 @@ docs(
         # "@score_process//:needs_json",
     ],
     source_dir = "docs",
+)
+
+# Test suites
+test_suite(
+    name = "unit_tests",
+    testonly = True,
+    tests = [
+        "//src/orchestration:tests",
+    ],
+)
+
+test_suite(
+    name = "cit_tests",
+    testonly = True,
+    tests = [
+        "//component_integration_tests/python_test_cases:cit",
+    ],
 )
