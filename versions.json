@@ -14,5 +14,9 @@
   {
     "version": "pr-22",
     "url": "https://eclipse-score.github.io/orchestrator/pr-22/"
+  },
+  {
+    "version": "pr-64",
+    "url": "https://eclipse-score.github.io/orchestrator/pr-64/"
   }
 ]
