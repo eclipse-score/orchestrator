@@ -34,5 +34,9 @@
   {
     "version": "pr-69",
     "url": "https://eclipse-score.github.io/orchestrator/pr-69/"
+  },
+  {
+    "version": "pr-70",
+    "url": "https://eclipse-score.github.io/orchestrator/pr-70/"
   }
 ]
