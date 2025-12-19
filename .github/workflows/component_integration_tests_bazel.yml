@@ -69,16 +69,16 @@ jobs:
 
       - name: Build Test Scenarios with Bazel
         run: |
-          bazel build //component_integration_tests/rust_test_scenarios:rust_test_scenarios
+          bazel build //tests/test_scenarios/rust:test_scenarios
 
       - name: Build Test Scenarios with Bazel (PR)
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         run: |
-          bazel test //component_integration_tests/python_test_cases:cit
+          bazel test //tests/test_cases:cit
 
       - name: Build Test Scenarios with Bazel (Nightly)
         if: github.event_name == 'schedule'
         env:
           NIGHTLY: TRUE
         run: |
-          bazel test //component_integration_tests/python_test_cases:cit_repeat --test_timeout=1200
+          bazel test //tests/test_cases:cit_repeat --test_timeout=1200

@@ -8,7 +8,7 @@ default-members = ["src/orchestration", "src/orchestration_macros", "src/xtask"]
 members = [
     "src/orchestration",
     "src/xtask",
-    "component_integration_tests/rust_test_scenarios",
+    "tests/test_scenarios/rust",
     "src/orchestration/examples/camera_drv_object_det",
     "src/orchestration_macros",
 ]

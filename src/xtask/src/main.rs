@@ -98,7 +98,7 @@ fn main() {
         "build:scenarios" => {
             run_build(
                 "debug_build",
-                &["build", "--manifest-path", "component_integration_tests/rust_test_scenarios/Cargo.toml"],
+                &["build", "--manifest-path", "tests/test_scenarios/rust/Cargo.toml"],
                 envs,
                 cli_env_vars,
                 &passthrough_args,
@@ -110,9 +110,9 @@ fn main() {
                 &[
                     "run",
                     "--manifest-path",
-                    "component_integration_tests/rust_test_scenarios/Cargo.toml",
+                    "tests/test_scenarios/rust/Cargo.toml",
                     "--bin",
-                    "rust_test_scenarios",
+                    "test_scenarios",
                 ],
                 envs,
                 cli_env_vars,

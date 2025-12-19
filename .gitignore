@@ -64,8 +64,8 @@ target/
 .*swo
 
 # Pytest reports
-component_integration_tests/python_test_cases/*.html
-component_integration_tests/python_test_cases/*.xml
+tests/test_cases/*.html
+tests/test_cases/*.xml
 
 #vscode
 .vscode*

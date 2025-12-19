@@ -23,7 +23,6 @@ copyright_checker(
     name = "copyright",
     srcs = [
         ".github",
-        "component_integration_tests",
         "docs",
         "internal_docs",
         "patches",
@@ -101,6 +100,6 @@ test_suite(
     name = "cit_tests",
     testonly = True,
     tests = [
-        "//component_integration_tests/python_test_cases:cit",
+        "//tests/test_cases:cit",
     ],
 )

@@ -2,8 +2,8 @@
 
 Repository for **Orchestration framework**
 
-[![Nightly CIT](../../actions/workflows/component_integration_tests.yml/badge.svg)](../../actions/workflows/component_integration_tests.yml)
-[![Nightly CIT (Bazel)](../../actions/workflows/component_integration_tests_bazel.yml/badge.svg)](../../actions/workflows/component_integration_tests_bazel.yml)
+[![Nightly CIT](../../actions/workflows/tests.yml/badge.svg)](../../actions/workflows/tests.yml)
+[![Nightly CIT (Bazel)](../../actions/workflows/tests_bazel.yml/badge.svg)](../../actions/workflows/tests_bazel.yml)
 
 
 ## Feature status and roadmap

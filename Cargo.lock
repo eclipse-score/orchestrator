@@ -838,22 +838,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a2d987857b319362043e95f5353c0535c1f58eec5336fdfcf626430af7def58"
 
 [[package]]
-name = "rust_test_scenarios"
-version = "0.0.3"
-dependencies = [
- "futures",
- "kyron",
- "kyron-foundation",
- "libc",
- "orchestration",
- "serde",
- "serde_json",
- "test_scenarios_rust",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "rustc-hash"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -974,9 +958,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "test_scenarios"
+version = "0.0.3"
+dependencies = [
+ "futures",
+ "kyron",
+ "kyron-foundation",
+ "libc",
+ "orchestration",
+ "serde",
+ "serde_json",
+ "test_scenarios_rust",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "test_scenarios_rust"
 version = "0.3.1"
-source = "git+https://github.com/qorix-group/testing_tools.git?rev=2367017e92a65cf4dd2cebeee6d6db3b4d6a1447#2367017e92a65cf4dd2cebeee6d6db3b4d6a1447"
+source = "git+https://github.com/eclipse-score/testing_tools.git?tag=v0.3.1#55280e1376922aead6e09f32542f4e2d0b90cc51"
 dependencies = [
  "tracing",
  "tracing-subscriber",

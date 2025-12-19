@@ -43,7 +43,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Rust test scenarios
-        working-directory: component_integration_tests/rust_test_scenarios
+        working-directory: tests/test_scenarios/rust
         run: cargo build
 
       - name: Set up Python 3
@@ -52,15 +52,13 @@ jobs:
           python-version: '3.12'
 
       - name: Set up Python virtual environment
-        working-directory: component_integration_tests/python_test_cases
         run: |
           python -m venv .venv
           source .venv/bin/activate
-          pip install -r requirements.txt
+          pip install -r tests/test_cases/requirements.txt
 
       - name: Run Python tests with pytest (PR)
         if: github.event_name == 'pull_request' || github.event_name == 'push'
-        working-directory: component_integration_tests/python_test_cases
         run: |
           source .venv/bin/activate
           python -m pytest --traces=all
@@ -69,7 +67,6 @@ jobs:
         if: github.event_name == 'schedule'
         env:
           NIGHTLY: TRUE
-        working-directory: component_integration_tests/python_test_cases
         run: |
           source .venv/bin/activate
           python -m pytest --traces=all --count=20 --repeat-scope=session
