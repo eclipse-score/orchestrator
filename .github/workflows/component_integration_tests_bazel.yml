@@ -23,7 +23,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
@@ -32,12 +31,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
-
-      - name: Install protoc 26.1
-        uses: arduino/setup-protoc@v3
-        with:
-          version: 26.1
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.15.0

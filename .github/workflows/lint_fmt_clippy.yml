@@ -13,7 +13,7 @@
 name: rustfmt and clippy check
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [main, development]
     types: [opened, ready_for_review, reopened, synchronize]
 
@@ -27,6 +27,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref || github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
 
       - name: Install protoc 26.1
         uses: arduino/setup-protoc@v3

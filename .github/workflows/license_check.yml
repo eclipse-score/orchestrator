@@ -17,8 +17,7 @@ on:
     types: [opened, reopened, synchronize]
   merge_group:
     types: [checks_requested]
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 permissions:
   pull-requests: write
   issues: write
