@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 #![allow(unused_imports)]
 use kyron::runtime::*;
 use kyron_foundation::prelude::*;
@@ -54,7 +54,10 @@ fn catch_error_component_design() -> Result<Design, CommonErrors> {
                     )
                     .catch(|e| {
                         // Handle the error, e.g., log it or take some action
-                        error!("Caught error: {:?}. This is not recoverable and we will stop execution", e);
+                        error!(
+                            "Caught error: {:?}. This is not recoverable and we will stop execution",
+                            e
+                        );
                     })
                     .build(design_instance),
                 )
@@ -89,7 +92,8 @@ fn main() {
         .expect("Failed to build tracing library");
 
     // Create runtime
-    let (builder, _engine_id) = kyron::runtime::RuntimeBuilder::new().with_engine(ExecutionEngineBuilder::new().task_queue_size(256).workers(2));
+    let (builder, _engine_id) = kyron::runtime::RuntimeBuilder::new()
+        .with_engine(ExecutionEngineBuilder::new().task_queue_size(256).workers(2));
     let mut runtime = builder.build().unwrap();
 
     // Build Orchestration

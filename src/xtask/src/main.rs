@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use std::collections::HashMap;
 use std::env;
@@ -42,26 +42,44 @@ fn main() {
     match command.as_str() {
         "build" => {
             debug_build(envs, cli_env_vars, &passthrough_args);
-        }
+        },
         "clippy" => {
             clippy(envs, cli_env_vars, &passthrough_args);
-        }
+        },
         "run" => {
             run_build("debug_build", &["run"], envs, cli_env_vars, &passthrough_args);
-        }
+        },
         "build:release" => {
-            run_build("release_build", &["build", "--release"], envs, cli_env_vars, &passthrough_args);
-        }
+            run_build(
+                "release_build",
+                &["build", "--release"],
+                envs,
+                cli_env_vars,
+                &passthrough_args,
+            );
+        },
         "run:release" => {
-            run_build("release_build", &["run", "--release"], envs, cli_env_vars, &passthrough_args);
-        }
+            run_build(
+                "release_build",
+                &["run", "--release"],
+                envs,
+                cli_env_vars,
+                &passthrough_args,
+            );
+        },
         "build:test" | "test" => {
             test(envs, cli_env_vars, &passthrough_args);
-        }
+        },
         "build:loom" => {
             envs.insert("RUSTFLAGS".into(), "--cfg loom".into());
-            run_build("loom_build", &["test", "--release"], envs, cli_env_vars, &passthrough_args);
-        }
+            run_build(
+                "loom_build",
+                &["test", "--release"],
+                envs,
+                cli_env_vars,
+                &passthrough_args,
+            );
+        },
         "build:qnx_x86_64" => {
             run_build(
                 "",
@@ -70,7 +88,7 @@ fn main() {
                 cli_env_vars,
                 &passthrough_args,
             );
-        }
+        },
         "build:qnx_arm" => {
             run_build(
                 "",
@@ -79,10 +97,10 @@ fn main() {
                 cli_env_vars,
                 &passthrough_args,
             );
-        }
+        },
         "check_lic" => {
             check_license_header();
-        }
+        },
         "check" => {
             check_license_header();
             run_command(
@@ -94,7 +112,7 @@ fn main() {
             debug_build(envs.clone(), cli_env_vars.clone(), &passthrough_args);
             clippy(envs.clone(), cli_env_vars.clone(), &passthrough_args);
             test(envs, cli_env_vars, &passthrough_args);
-        }
+        },
         "build:scenarios" => {
             run_build(
                 "debug_build",
@@ -103,7 +121,7 @@ fn main() {
                 cli_env_vars,
                 &passthrough_args,
             );
-        }
+        },
         "run:scenarios" => {
             run_build(
                 "debug_build",
@@ -118,7 +136,7 @@ fn main() {
                 cli_env_vars,
                 &passthrough_args,
             );
-        }
+        },
         _ => print_usage_and_exit(),
     }
 }
@@ -159,7 +177,12 @@ fn run_build(
     run_command(cargo_args, default_envs, extra_args, None);
 }
 
-fn run_command(cargo_args: &[&str], default_envs: HashMap<String, String>, extra_args: &[String], explain: Option<&str>) {
+fn run_command(
+    cargo_args: &[&str],
+    default_envs: HashMap<String, String>,
+    extra_args: &[String],
+    explain: Option<&str>,
+) {
     let mut cmd = Command::new("cargo");
     cmd.args(cargo_args);
     cmd.args(extra_args);
@@ -171,7 +194,9 @@ fn run_command(cargo_args: &[&str], default_envs: HashMap<String, String>, extra
     println!("> Running: cargo {} {}", cargo_args.join(" "), extra_args.join(" "));
     println!("> With envs: {:?}", default_envs);
 
-    let status = cmd.status().unwrap_or_else(|_| panic!("Failed to run cargo with explain {:?}", explain));
+    let status = cmd
+        .status()
+        .unwrap_or_else(|_| panic!("Failed to run cargo with explain {:?}", explain));
     if !status.success() {
         exit(status.code().unwrap_or(1));
     }
@@ -197,8 +222,8 @@ fn print_usage_and_exit() -> ! {
     exit(1);
 }
 
-const REQUIRED_HEADER: &str = r#"//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+const REQUIRED_HEADER: &str = r#"// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -208,11 +233,13 @@ const REQUIRED_HEADER: &str = r#"//
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 "#;
 
 fn check_license_header() {
-    let project_dir = std::env::current_dir().expect("Failed to get current directory").join("src");
+    let project_dir = std::env::current_dir()
+        .expect("Failed to get current directory")
+        .join("src");
     let mut missing_header_files = Vec::new();
 
     visit_dirs(&project_dir, &mut missing_header_files);

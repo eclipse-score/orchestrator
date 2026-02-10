@@ -1,3 +1,15 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// <https://www.apache.org/licenses/LICENSE-2.0>
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
 use super::*;
 use crate::internals::runtime_helper::Runtime;
 use kyron::futures::sleep;
@@ -69,15 +81,34 @@ fn sleep_under_load(sleep_duration_ms: u64, cpu_load: String) -> Result<Design, 
     let mut design = Design::new("SleepUnderLoad".into(), DesignConfig::default());
 
     // Register async actions as invoke functions and get tags
-    let sleep1_tag = design.register_invoke_async("Sleep1".into(), non_blocking_sleep_task!("Sleep1".to_string(), sleep_duration_ms))?;
+    let sleep1_tag = design.register_invoke_async(
+        "Sleep1".into(),
+        non_blocking_sleep_task!("Sleep1".to_string(), sleep_duration_ms),
+    )?;
 
-    let cpu_load_action = if cpu_load == "low" { cpu_load_action!(5) } else { cpu_load_action!(42) };
+    let cpu_load_action = if cpu_load == "low" {
+        cpu_load_action!(5)
+    } else {
+        cpu_load_action!(42)
+    };
     let cpu_tag = design.register_invoke_fn("CpuLoadInput".into(), cpu_load_action)?;
 
-    let sleep2_tag = design.register_invoke_async("Sleep2".into(), non_blocking_sleep_task!("Sleep2".to_string(), sleep_duration_ms))?;
-    let sleep3_tag = design.register_invoke_async("Sleep3".into(), non_blocking_sleep_task!("Sleep3".to_string(), sleep_duration_ms))?;
-    let sleep4_tag = design.register_invoke_async("Sleep4".into(), non_blocking_sleep_task!("Sleep4".to_string(), sleep_duration_ms))?;
-    let sleep5_tag = design.register_invoke_async("Sleep5".into(), non_blocking_sleep_task!("Sleep5".to_string(), sleep_duration_ms))?;
+    let sleep2_tag = design.register_invoke_async(
+        "Sleep2".into(),
+        non_blocking_sleep_task!("Sleep2".to_string(), sleep_duration_ms),
+    )?;
+    let sleep3_tag = design.register_invoke_async(
+        "Sleep3".into(),
+        non_blocking_sleep_task!("Sleep3".to_string(), sleep_duration_ms),
+    )?;
+    let sleep4_tag = design.register_invoke_async(
+        "Sleep4".into(),
+        non_blocking_sleep_task!("Sleep4".to_string(), sleep_duration_ms),
+    )?;
+    let sleep5_tag = design.register_invoke_async(
+        "Sleep5".into(),
+        non_blocking_sleep_task!("Sleep5".to_string(), sleep_duration_ms),
+    )?;
 
     design.add_program(file!(), move |design, builder| {
         builder.with_run_action(
@@ -123,7 +154,8 @@ impl Scenario for SleepUnderLoad {
 
         let orch = Orchestration::new().add_design(design).design_done();
 
-        let mut program_manager: orchestration::api::OrchProgramManager = orch.into_program_manager().expect("Failed to create programs");
+        let mut program_manager: orchestration::api::OrchProgramManager =
+            orch.into_program_manager().expect("Failed to create programs");
         let mut programs = program_manager.get_programs();
 
         rt.block_on(async move {

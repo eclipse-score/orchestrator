@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use super::action::{ActionBaseMeta, ActionResult, ActionTrait, ReusableBoxFutureResult};
 use crate::api::design::Design;
@@ -51,10 +51,10 @@ impl SelectBuilder {
     pub fn build(&mut self, design: &Design) -> Box<Select> {
         let cases = self.cases.take().expect("Select requires at least one case.");
         let cases_len = cases.len();
-        let mut reusable_case_pins =
-            ReusableObjects::<Vec<Pin<ReusableBoxFuture<ActionResult>>>>::new(design.config.max_concurrent_action_executions, |_| {
-                Vec::new_in_global(cases_len)
-            });
+        let mut reusable_case_pins = ReusableObjects::<Vec<Pin<ReusableBoxFuture<ActionResult>>>>::new(
+            design.config.max_concurrent_action_executions,
+            |_| Vec::new_in_global(cases_len),
+        );
 
         Box::new(Select {
             base: ActionBaseMeta {
@@ -133,7 +133,7 @@ impl SelectFuture {
                 warn!("Failed to seed the SelectFuture random generator.");
 
                 0xA491_3C75_E1F8_B2D6
-            }
+            },
         };
 
         Self {
@@ -163,7 +163,7 @@ impl Future for SelectFuture {
                 Poll::Ready(result) => {
                     loop_result = Some(result);
                     break;
-                }
+                },
                 Poll::Pending => (),
             }
         }
@@ -214,10 +214,17 @@ mod tests {
         let mock3 = Box::new(TestAsyncAction::new(future::pending));
 
         let design = Design::new("Design".into(), DesignConfig::default());
-        let mut select = SelectBuilder::new().with_case(mock1).with_case(mock2).with_case(mock3).build(&design);
+        let mut select = SelectBuilder::new()
+            .with_case(mock1)
+            .with_case(mock2)
+            .with_case(mock3)
+            .build(&design);
 
         let mut poller = OrchTestingPoller::new(select.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into())))
+        );
     }
 
     #[test]
@@ -232,10 +239,17 @@ mod tests {
         let mock3 = Box::new(TestAsyncAction::new(future::pending));
 
         let design = Design::new("Design".into(), DesignConfig::default());
-        let mut select = SelectBuilder::new().with_case(mock1).with_case(mock2).with_case(mock3).build(&design);
+        let mut select = SelectBuilder::new()
+            .with_case(mock1)
+            .with_case(mock2)
+            .with_case(mock3)
+            .build(&design);
 
         let mut poller = OrchTestingPoller::new(select.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into())))
+        );
     }
 
     #[test]
@@ -250,10 +264,17 @@ mod tests {
         );
 
         let design = Design::new("Design".into(), DesignConfig::default());
-        let mut select = SelectBuilder::new().with_case(mock1).with_case(mock2).with_case(mock3).build(&design);
+        let mut select = SelectBuilder::new()
+            .with_case(mock1)
+            .with_case(mock2)
+            .with_case(mock3)
+            .build(&design);
 
         let mut poller = OrchTestingPoller::new(select.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into())))
+        );
     }
 
     #[test]
@@ -270,10 +291,17 @@ mod tests {
         let mock3 = Box::new(TestAsyncAction::new(async_fn_with_await));
 
         let design = Design::new("Design".into(), DesignConfig::default());
-        let mut select = SelectBuilder::new().with_case(mock1).with_case(mock2).with_case(mock3).build(&design);
+        let mut select = SelectBuilder::new()
+            .with_case(mock1)
+            .with_case(mock2)
+            .with_case(mock3)
+            .build(&design);
 
         let mut poller = OrchTestingPoller::new(select.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into())))
+        );
     }
 
     #[test]
@@ -290,10 +318,17 @@ mod tests {
         let mock3 = Box::new(TestAsyncAction::new(async_fn_with_await));
 
         let design = Design::new("Design".into(), DesignConfig::default());
-        let mut select = SelectBuilder::new().with_case(mock1).with_case(mock2).with_case(mock3).build(&design);
+        let mut select = SelectBuilder::new()
+            .with_case(mock1)
+            .with_case(mock2)
+            .with_case(mock3)
+            .build(&design);
 
         let mut poller = OrchTestingPoller::new(select.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into())))
+        );
     }
 
     #[test]
@@ -310,10 +345,17 @@ mod tests {
         let mock3 = Box::new(TestAsyncAction::new(future::pending));
 
         let design = Design::new("Design".into(), DesignConfig::default());
-        let mut select = SelectBuilder::new().with_case(mock1).with_case(mock2).with_case(mock3).build(&design);
+        let mut select = SelectBuilder::new()
+            .with_case(mock1)
+            .with_case(mock2)
+            .with_case(mock3)
+            .build(&design);
 
         let mut poller = OrchTestingPoller::new(select.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xdeadbeef.into())))
+        );
     }
 
     #[test]
@@ -326,7 +368,11 @@ mod tests {
         let mock3 = Box::new(TestAsyncAction::new(async_fn_with_await));
 
         let design = Design::new("Design".into(), DesignConfig::default());
-        let mut select = SelectBuilder::new().with_case(mock1).with_case(mock2).with_case(mock3).build(&design);
+        let mut select = SelectBuilder::new()
+            .with_case(mock1)
+            .with_case(mock2)
+            .with_case(mock3)
+            .build(&design);
 
         let mut poller = OrchTestingPoller::new(select.try_execute().unwrap());
         assert_eq!(poller.poll(), Poll::Ready(Ok(())));
@@ -346,9 +392,16 @@ mod tests {
         let mock3 = Box::new(TestAsyncAction::new(async_fn_with_await));
 
         let design = Design::new("Design".into(), DesignConfig::default());
-        let mut select = SelectBuilder::new().with_case(mock1).with_case(mock2).with_case(mock3).build(&design);
+        let mut select = SelectBuilder::new()
+            .with_case(mock1)
+            .with_case(mock2)
+            .with_case(mock3)
+            .build(&design);
 
         let mut poller = OrchTestingPoller::new(select.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0x1234abcd.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0x1234abcd.into())))
+        );
     }
 }

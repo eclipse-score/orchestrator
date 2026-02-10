@@ -1,3 +1,15 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// <https://www.apache.org/licenses/LICENSE-2.0>
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
 use crate::scenarios::orchestration::{
     orchestration_methods::{InvalidInvokes, TagMethods, TooManyTags},
     orchestration_shutdown::ShutdownBeforeStart,
@@ -8,11 +20,12 @@ use orchestration_graph::graph_scenario_group;
 use orchestration_sequence::{AwaitSequence, NestedSequence, SingleSequence};
 use orchestration_sleep::SleepUnderLoad;
 use orchestration_trigger_sync::{
-    OneTriggerOneSyncTwoPrograms, OneTriggerTwoSyncsThreePrograms, TriggerAndSyncInNestedBranches, TriggerSyncOneAfterAnother,
+    OneTriggerOneSyncTwoPrograms, OneTriggerTwoSyncsThreePrograms, TriggerAndSyncInNestedBranches,
+    TriggerSyncOneAfterAnother,
 };
 use orchestration_user_error_catch::{
-    CatchConcurrencyUserError, CatchDoubleMixedUserError, CatchDoubleRecoverableUserError, CatchNestedConcurrencyUserError,
-    CatchNestedSequenceUserError, CatchSequenceUserError, DoubleCatchSequence,
+    CatchConcurrencyUserError, CatchDoubleMixedUserError, CatchDoubleRecoverableUserError,
+    CatchNestedConcurrencyUserError, CatchNestedSequenceUserError, CatchSequenceUserError, DoubleCatchSequence,
 };
 use test_scenarios_rust::scenario::{ScenarioGroup, ScenarioGroupImpl};
 
@@ -23,7 +36,9 @@ use kyron::futures::{sleep, yield_now};
 
 use orchestration::{common::tag::Tag, prelude::*};
 
-use orchestration_shutdown::{GetAllShutdowns, OneProgramNotShut, SingleProgramSingleShutdown, TwoProgramsSingleShutdown, TwoProgramsTwoShutdowns};
+use orchestration_shutdown::{
+    GetAllShutdowns, OneProgramNotShut, SingleProgramSingleShutdown, TwoProgramsSingleShutdown, TwoProgramsTwoShutdowns,
+};
 use tracing::info;
 
 pub mod orchestration_user_error_catch;
@@ -53,7 +68,11 @@ mod orchestration_trigger_sync;
 fn sequence_scenario_group() -> Box<dyn ScenarioGroup> {
     Box::new(ScenarioGroupImpl::new(
         "sequence",
-        vec![Box::new(SingleSequence), Box::new(NestedSequence), Box::new(AwaitSequence)],
+        vec![
+            Box::new(SingleSequence),
+            Box::new(NestedSequence),
+            Box::new(AwaitSequence),
+        ],
         vec![],
     ))
 }
@@ -61,7 +80,11 @@ fn sequence_scenario_group() -> Box<dyn ScenarioGroup> {
 fn concurrency_scenario_group() -> Box<dyn ScenarioGroup> {
     Box::new(ScenarioGroupImpl::new(
         "concurrency",
-        vec![Box::new(SingleConcurrency), Box::new(MultipleConcurrency), Box::new(NestedConcurrency)],
+        vec![
+            Box::new(SingleConcurrency),
+            Box::new(MultipleConcurrency),
+            Box::new(NestedConcurrency),
+        ],
         vec![],
     ))
 }
@@ -185,7 +208,9 @@ impl ActionTrait for JustLogAction {
         Ok(())
     }
     fn try_execute(&mut self) -> ReusableBoxFutureResult {
-        self.base.reusable_future_pool.next(JustLogAction::execute_impl(self.name.clone()))
+        self.base
+            .reusable_future_pool
+            .next(JustLogAction::execute_impl(self.name.clone()))
     }
 }
 

@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 pub mod camera_driver;
 pub mod object_detection;
@@ -92,11 +92,16 @@ fn obj_det_design() -> Result<Design, CommonErrors> {
     let mut design = Design::new("obj_det_design".into(), DesignConfig::default());
 
     let obj_det = Arc::new(Mutex::new(ObjectDetection::new()));
-    let t1_tag = design.register_invoke_method("pre_processing".into(), obj_det.clone(), ObjectDetection::pre_processing)?;
+    let t1_tag = design.register_invoke_method(
+        "pre_processing".into(),
+        obj_det.clone(),
+        ObjectDetection::pre_processing,
+    )?;
     let t2_tag = design.register_invoke_method("drive_q1".into(), obj_det.clone(), ObjectDetection::drive_q1)?;
     let t3_tag = design.register_invoke_method("drive_q2".into(), obj_det.clone(), ObjectDetection::drive_q2)?;
     let t4_tag = design.register_invoke_method("drive_q3".into(), obj_det.clone(), ObjectDetection::drive_q3)?;
-    let t5_tag = design.register_invoke_method("object_fusion".into(), obj_det.clone(), ObjectDetection::object_fusion)?;
+    let t5_tag =
+        design.register_invoke_method("object_fusion".into(), obj_det.clone(), ObjectDetection::object_fusion)?;
 
     design.register_event("timer_event".into())?;
     design.register_event("trigger_obj_det".into())?;
@@ -133,8 +138,8 @@ fn main() {
         .expect("Failed to build tracing library");
 
     // Create runtime
-    let (builder, _engine_id) =
-        kyron::runtime::RuntimeBuilder::new().with_engine(runtime::ExecutionEngineBuilder::new().task_queue_size(256).workers(3));
+    let (builder, _engine_id) = kyron::runtime::RuntimeBuilder::new()
+        .with_engine(runtime::ExecutionEngineBuilder::new().task_queue_size(256).workers(3));
     let mut runtime = builder.build().unwrap();
 
     // Build Orchestration
@@ -149,7 +154,9 @@ fn main() {
     let mut deployment = orch.get_deployment_mut();
 
     // Mark user events as local one.
-    deployment.bind_events_as_local(&["timer_event".into()]).expect("Failed to specify event");
+    deployment
+        .bind_events_as_local(&["timer_event".into()])
+        .expect("Failed to specify event");
 
     deployment
         .bind_events_as_local(&["trigger_obj_det".into()])

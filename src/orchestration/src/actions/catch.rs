@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 #![allow(dead_code)]
 use ::core::ops::BitOr;
@@ -174,7 +174,10 @@ impl CatchBuilder {
                 ),
             },
             filters: self.filters,
-            action: self.action.take().expect("CatchBuilder: Action must be set before building"),
+            action: self
+                .action
+                .take()
+                .expect("CatchBuilder: Action must be set before building"),
             handler: self.handler.clone(),
         })
     }
@@ -219,7 +222,11 @@ impl Into<ErrorFilters> for ErrorFilter {
 }
 
 impl Catch {
-    async fn execute_impl(action: ReusableBoxFuture<ActionResult>, handler: HandlerType, filters: ErrorFilters) -> ActionResult {
+    async fn execute_impl(
+        action: ReusableBoxFuture<ActionResult>,
+        handler: HandlerType,
+        filters: ErrorFilters,
+    ) -> ActionResult {
         // How does it work:
         // There are two cases for error source: Return error from user Invoke or Timeout from `Timeout` action..
         //
@@ -238,14 +245,14 @@ impl Catch {
             Ok(_) => Ok(()),
             Err(ActionExecError::UserError(user_error)) if filters.is_filter_enabled(ErrorFilter::UserErrors) => {
                 Self::handle_user_action(handler, HandlerErrors::UserErr(user_error))
-            }
+            },
             Err(ActionExecError::Timeout) if filters.is_filter_enabled(ErrorFilter::Timeouts) => {
                 Self::handle_user_action(handler, HandlerErrors::Timeout)
-            }
+            },
             Err(e) => {
                 error!("Catch: Not filtered error in action execution: {:?}, propagating.", e);
                 Err(e)
-            }
+            },
         }
     }
 
@@ -259,12 +266,12 @@ impl Catch {
                 } else {
                     Err(ActionExecError::from(e)) // Keep  the error as is, maybe someone below can handle it
                 }
-            }
+            },
             HandlerType::NonRecoverable(ref mut user_handler) => {
                 let mut handler = user_handler.lock().unwrap();
                 handler(e);
                 Err(ActionExecError::NonRecoverableFailure)
-            }
+            },
         }
     }
 }
@@ -363,7 +370,9 @@ mod tests {
         let action = Box::new(MockAction::<()>::default());
         let builder = CatchBuilder::new(ErrorFilter::UserErrors.into(), action);
 
-        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new().times(0).build();
+        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new()
+            .times(0)
+            .build();
 
         let mut catch = builder
             .catch(move |_err| {
@@ -388,7 +397,9 @@ mod tests {
         );
         let builder = CatchBuilder::new(ErrorFilter::UserErrors.into(), action);
 
-        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new().times(1).build();
+        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new()
+            .times(1)
+            .build();
 
         let mut catch = builder
             .catch(move |_err| {
@@ -407,10 +418,16 @@ mod tests {
     fn when_user_action_finished_with_not_filtered_error_catch_does_not_call_handler() {
         {
             let design = Design::new("Design".into(), DesignConfig::default());
-            let action = Box::new(MockActionBuilder::<()>::new().will_once_return(Err(ActionExecError::Timeout)).build());
+            let action = Box::new(
+                MockActionBuilder::<()>::new()
+                    .will_once_return(Err(ActionExecError::Timeout))
+                    .build(),
+            );
             let builder = CatchBuilder::new(ErrorFilter::UserErrors.into(), action);
 
-            let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new().times(0).build();
+            let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new()
+                .times(0)
+                .build();
 
             let mut catch = builder
                 .catch(move |_err| {
@@ -434,7 +451,9 @@ mod tests {
             );
             let builder = CatchBuilder::new(ErrorFilter::Timeouts.into(), action);
 
-            let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new().times(0).build();
+            let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new()
+                .times(0)
+                .build();
 
             let mut catch = builder
                 .catch(move |_err| {
@@ -446,17 +465,26 @@ mod tests {
 
             let mut poller = OrchTestingPoller::new(f);
 
-            assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(UserErrValue::from(64)))));
+            assert_eq!(
+                poller.poll(),
+                Poll::Ready(Err(ActionExecError::UserError(UserErrValue::from(64))))
+            );
         }
     }
 
     #[test]
     fn when_action_finished_with_internal_err_error_is_propagated() {
         let design = Design::new("Design".into(), DesignConfig::default());
-        let action = Box::new(MockActionBuilder::<()>::new().will_once_return(Err(ActionExecError::Internal)).build());
+        let action = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Err(ActionExecError::Internal))
+                .build(),
+        );
         let builder = CatchBuilder::new(ErrorFilter::UserErrors.into(), action);
 
-        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new().times(0).build();
+        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new()
+            .times(0)
+            .build();
 
         let mut catch = builder
             .catch(move |_err| {
@@ -481,7 +509,9 @@ mod tests {
         );
         let builder = CatchBuilder::new(ErrorFilter::UserErrors.into(), action);
 
-        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new().times(1).build();
+        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new()
+            .times(1)
+            .build();
 
         let mut catch = builder
             .catch_recoverable(move |_err| {
@@ -507,7 +537,9 @@ mod tests {
         );
         let builder = CatchBuilder::new(ErrorFilter::UserErrors.into(), action);
 
-        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new().times(1).build();
+        let mut handler_mock = kyron_testing::mock_fn::MockFnBuilder::<(), bool>::new()
+            .times(1)
+            .build();
 
         let mut catch = builder
             .catch_recoverable(move |_err| {
@@ -520,6 +552,9 @@ mod tests {
 
         let mut poller = OrchTestingPoller::new(f);
 
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(UserErrValue::from(64)))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(UserErrValue::from(64))))
+        );
     }
 }

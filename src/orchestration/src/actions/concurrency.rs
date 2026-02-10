@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use super::action::{ActionBaseMeta, ActionMeta, ActionResult, ActionTrait, ReusableBoxFutureResult};
 use crate::actions::action::ActionExecError;
@@ -76,10 +76,15 @@ impl ConcurrencyBuilder {
         Box::new(Concurrency {
             base: ActionBaseMeta {
                 tag: "orch::internal::concurrency".into(),
-                reusable_future_pool: Concurrency::create_reusable_future_pool(design.config.max_concurrent_action_executions),
+                reusable_future_pool: Concurrency::create_reusable_future_pool(
+                    design.config.max_concurrent_action_executions,
+                ),
             },
             actions: actions.into(),
-            futures_vec_pool: ReusableVecPool::<ActionMeta>::new(design.config.max_concurrent_action_executions, |_| Vec::new_in_global(length)),
+            futures_vec_pool: ReusableVecPool::<ActionMeta>::new(
+                design.config.max_concurrent_action_executions,
+                |_| Vec::new_in_global(length),
+            ),
         })
     }
 }
@@ -128,7 +133,9 @@ impl ActionTrait for Concurrency {
             futures_vec.push(ActionMeta::new(action.try_execute()?));
         }
 
-        self.base.reusable_future_pool.next(Self::execute_impl(self.base.tag, futures_vec))
+        self.base
+            .reusable_future_pool
+            .next(Self::execute_impl(self.base.tag, futures_vec))
     }
 
     fn name(&self) -> &'static str {
@@ -191,25 +198,25 @@ impl ConcurrencyJoin {
                                     if execution_result.is_err() && hnd.0 >= self.action_execution_result.0 {
                                         self.action_execution_result = (hnd.0, execution_result);
                                     }
-                                }
+                                },
                                 Poll::Pending => {
                                     is_done = false; // At least one handle is still pending
                                     if self.state == FutureState::Polled {
                                         // Exit loop, no need to poll others now since aborting is not required
                                         break;
                                     }
-                                }
+                                },
                             }
-                        }
+                        },
                         ActionMeta::Future(_) => {
                             not_recoverable_error!("Join handle not available for the spawned future!");
-                        }
+                        },
                         ActionMeta::Empty => {
                             if self.state == FutureState::Polled {
                                 continue; // Already polled.
                             }
                             not_recoverable_error!("Join handle not available for the spawned future!");
-                        }
+                        },
                     }
                 }
 
@@ -218,10 +225,10 @@ impl ConcurrencyJoin {
                 } else {
                     FutureInternalReturn::polled()
                 }
-            }
+            },
             FutureState::Finished => {
                 not_recoverable_error!("Future polled after it finished!")
-            }
+            },
         };
         self.state.assign_and_propagate(result)
     }
@@ -255,7 +262,9 @@ mod tests {
         // Create a concurrency builder using new() and add two branches.
         let design = Design::new("Design".into(), DesignConfig::default());
         let mut concurrency_builder = ConcurrencyBuilder::new();
-        concurrency_builder.with_branch(Box::new(mock1)).with_branch(Box::new(mock2));
+        concurrency_builder
+            .with_branch(Box::new(mock1))
+            .with_branch(Box::new(mock2));
         let concurrency = concurrency_builder.build(&design);
         assert_eq!(concurrency.actions.len(), 2);
         assert_eq!(concurrency.name(), "Concurrency");
@@ -289,7 +298,9 @@ mod tests {
 
         let design = Design::new("Design".into(), DesignConfig::default());
         let mut concurrency_builder = ConcurrencyBuilder::new();
-        concurrency_builder.with_branch(Box::new(mock1)).with_branch(Box::new(mock2));
+        concurrency_builder
+            .with_branch(Box::new(mock1))
+            .with_branch(Box::new(mock2));
         let mut concurrency = concurrency_builder.build(&design);
 
         let mut poller = OrchTestingPoller::new(concurrency.try_execute().unwrap());
@@ -338,7 +349,9 @@ mod tests {
     #[ensure_clear_mock_runtime]
     fn concurrency_execute_ok_and_err_actions() {
         let mock1 = MockActionBuilder::<()>::new().will_once_return(Ok(())).build();
-        let mock2 = MockActionBuilder::<()>::new().will_once_return(Err(ActionExecError::Internal)).build();
+        let mock2 = MockActionBuilder::<()>::new()
+            .will_once_return(Err(ActionExecError::Internal))
+            .build();
         let mock3 = MockActionBuilder::<()>::new().will_once_return(Ok(())).build();
         let mock4 = MockActionBuilder::<()>::new()
             .will_once_return(Err(ActionExecError::NonRecoverableFailure))
@@ -378,7 +391,9 @@ mod tests {
 
         let design = Design::new("Design".into(), DesignConfig::default());
         let mut concurrency_builder = ConcurrencyBuilder::new();
-        concurrency_builder.with_branch(Box::new(mock1)).with_branch(Box::new(mock2));
+        concurrency_builder
+            .with_branch(Box::new(mock1))
+            .with_branch(Box::new(mock2));
         let mut concurrency = concurrency_builder.build(&design);
 
         let mut poller = OrchTestingPoller::new(concurrency.try_execute().unwrap());
@@ -408,7 +423,9 @@ mod tests {
 
         let design = Design::new("Design".into(), DesignConfig::default());
         let mut concurrency_builder = ConcurrencyBuilder::new();
-        concurrency_builder.with_branch(Box::new(mock1)).with_branch(Box::new(mock2));
+        concurrency_builder
+            .with_branch(Box::new(mock1))
+            .with_branch(Box::new(mock2));
         let mut concurrency = concurrency_builder.build(&design);
 
         let mut poller = OrchTestingPoller::new(concurrency.try_execute().unwrap());
@@ -437,7 +454,9 @@ mod tests {
 
         let design = Design::new("Design".into(), DesignConfig::default());
         let mut concurrency_builder = ConcurrencyBuilder::new();
-        concurrency_builder.with_branch(Box::new(mock1)).with_branch(Box::new(mock2));
+        concurrency_builder
+            .with_branch(Box::new(mock1))
+            .with_branch(Box::new(mock2));
         let mut concurrency = concurrency_builder.build(&design);
 
         // Execute the concurrency twice to ensure it can handle multiple executions correctly.
@@ -470,7 +489,9 @@ mod tests {
 
         let design = Design::new("Design".into(), DesignConfig::default());
         let mut concurrency_builder = ConcurrencyBuilder::new();
-        concurrency_builder.with_branch(Box::new(mock1)).with_branch(Box::new(mock2));
+        concurrency_builder
+            .with_branch(Box::new(mock1))
+            .with_branch(Box::new(mock2));
         let mut concurrency = concurrency_builder.build(&design);
 
         // Execute the concurrency twice to ensure it can handle multiple executions correctly.

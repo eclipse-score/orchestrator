@@ -1,3 +1,15 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// <https://www.apache.org/licenses/LICENSE-2.0>
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
 use crate::internals::runtime_helper::Runtime;
 use test_scenarios_rust::scenario::Scenario;
 
@@ -52,7 +64,10 @@ impl BasicIfElse {
 
         let branch_true_tag = design.register_invoke_async("branch_true".into(), just_log_task!("true"))?;
         let branch_false_tag = design.register_invoke_async("branch_false".into(), just_log_task!("false"))?;
-        let condition_tag = design.register_if_else_arc_mutex_condition("condition".into(), Arc::new(Mutex::new(SettableCondition { condition })))?;
+        let condition_tag = design.register_if_else_arc_mutex_condition(
+            "condition".into(),
+            Arc::new(Mutex::new(SettableCondition { condition })),
+        )?;
 
         design.add_program("basic_if_else_program", move |design, builder| {
             builder.with_run_action(IfElse::from_tag(
@@ -118,8 +133,18 @@ impl NestedIfElse {
         design.register_invoke_async("branch_true_false".into(), just_log_task!("true_false"))?;
         design.register_invoke_async("branch_false_true".into(), just_log_task!("false_true"))?;
         design.register_invoke_async("branch_false_false".into(), just_log_task!("false_false"))?;
-        design.register_if_else_arc_condition("outer_condition".into(), Arc::new(SettableCondition { condition: outer_condition }))?;
-        design.register_if_else_condition("inner_condition".into(), SettableCondition { condition: inner_condition })?;
+        design.register_if_else_arc_condition(
+            "outer_condition".into(),
+            Arc::new(SettableCondition {
+                condition: outer_condition,
+            }),
+        )?;
+        design.register_if_else_condition(
+            "inner_condition".into(),
+            SettableCondition {
+                condition: inner_condition,
+            },
+        )?;
 
         design.add_program("basic_if_else_program", move |design, builder| {
             builder.with_run_action(IfElse::from_design(
@@ -157,7 +182,9 @@ impl Scenario for NestedIfElse {
         let logic = NestedTestInput::new(input);
 
         let orch = Orchestration::new()
-            .add_design(Self::if_else_design(logic.inner_condition, logic.outer_condition).expect("Failed to create design"))
+            .add_design(
+                Self::if_else_design(logic.inner_condition, logic.outer_condition).expect("Failed to create design"),
+            )
             .design_done();
 
         let mut program_manager = orch.into_program_manager().expect("Failed to create programs");

@@ -1,3 +1,15 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// <https://www.apache.org/licenses/LICENSE-2.0>
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
 use super::*;
 use crate::internals::runtime_helper::Runtime;
 use kyron_foundation::prelude::*;
@@ -60,7 +72,11 @@ fn test_design() -> Result<Design, CommonErrors> {
 
     // Create tags
     let method_tag = Tag::from_str_static("sample_method");
-    info!(message = "Tag created", id = method_tag.id(), tracing_str = method_tag.tracing_str());
+    info!(
+        message = "Tag created",
+        id = method_tag.id(),
+        tracing_str = method_tag.tracing_str()
+    );
     let method_tag_async = Tag::from_str_static("sample_async_method");
     let extra_tag = Tag::from_str_static("extra_tag");
     let tags_collection = [CustomTag(method_tag), CustomTag(method_tag_async)];
@@ -116,7 +132,9 @@ impl Scenario for TagMethods {
             .design_done();
 
         let mut program_manager = orch.into_program_manager().expect("Failed to create programs");
-        let mut program = program_manager.get_program("test_program").expect("Failed to get program");
+        let mut program = program_manager
+            .get_program("test_program")
+            .expect("Failed to get program");
 
         rt.block_on(async move {
             let h1 = kyron::spawn(async move {

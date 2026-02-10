@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 use ::core::cell::RefCell;
 use core::time::Duration;
 use std::rc::Rc;
@@ -73,12 +73,18 @@ impl<GlobalProvider: IpcProvider + 'static> EventsProvider<GlobalProvider> {
 
     /// Deployment time event specification
     /// This let integrator register new event and specify whether it's local or global and which design events should map to it.
-    pub(crate) fn specify_global_event(&mut self, system_event: &str, events_to_bind: &[Tag]) -> Result<EventCreator, CommonErrors> {
+    pub(crate) fn specify_global_event(
+        &mut self,
+        system_event: &str,
+        events_to_bind: &[Tag],
+    ) -> Result<EventCreator, CommonErrors> {
         let ipc_c = Rc::clone(&self.ipc);
 
-        self.specify_event(system_event, EventType::Global, events_to_bind, |evt_name, _| GlobalEventCreator {
-            system_event_name: evt_name.to_string(),
-            global_provider: ipc_c,
+        self.specify_event(system_event, EventType::Global, events_to_bind, |evt_name, _| {
+            GlobalEventCreator {
+                system_event_name: evt_name.to_string(),
+                global_provider: ipc_c,
+            }
         })
     }
 
@@ -86,17 +92,23 @@ impl<GlobalProvider: IpcProvider + 'static> EventsProvider<GlobalProvider> {
         let name = format!("local_event_{}", self.local_event_next_id);
         self.local_event_next_id += 1;
 
-        self.specify_event(name.as_str(), EventType::Local, events_to_bind, |_, evt_tag| LocalEventCreator {
-            local_event: LocalEvent::new(evt_tag),
+        self.specify_event(name.as_str(), EventType::Local, events_to_bind, |_, evt_tag| {
+            LocalEventCreator {
+                local_event: LocalEvent::new(evt_tag),
+            }
         })
     }
 
-    pub(crate) fn specify_timer_event(&mut self, events_to_bind: &[Tag], cycle_duration: core::time::Duration) -> Result<EventCreator, CommonErrors> {
+    pub(crate) fn specify_timer_event(
+        &mut self,
+        events_to_bind: &[Tag],
+        cycle_duration: core::time::Duration,
+    ) -> Result<EventCreator, CommonErrors> {
         let name = format!("timer_event_{}", self.timer_event_next_id);
         self.timer_event_next_id += 1;
 
-        self.specify_event(name.as_str(), EventType::Timer, events_to_bind, |_, _| TimerEventCreator {
-            cycle: cycle_duration,
+        self.specify_event(name.as_str(), EventType::Timer, events_to_bind, |_, _| {
+            TimerEventCreator { cycle: cycle_duration }
         })
     }
 
@@ -114,13 +126,22 @@ impl<GlobalProvider: IpcProvider + 'static> EventsProvider<GlobalProvider> {
         let system_event_tag: Tag = system_event.into();
 
         if system_event_tag.is_in_collection(self.events.iter()) {
-            warn!("Event({:?}) with tag {:?} has been already bind, ignoring.", t, system_event_tag);
+            warn!(
+                "Event({:?}) with tag {:?} has been already bind, ignoring.",
+                t, system_event_tag
+            );
             return Err(CommonErrors::AlreadyDone);
         }
 
-        trace!("Binding event({:?}) {} to user events {:?}", t, system_event, events_to_bind);
+        trace!(
+            "Binding event({:?}) {} to user events {:?}",
+            t,
+            system_event,
+            events_to_bind
+        );
 
-        let creator: Rc<RefCell<dyn EventCreatorTrait>> = Rc::new(RefCell::new(creator_builder(system_event, system_event_tag)));
+        let creator: Rc<RefCell<dyn EventCreatorTrait>> =
+            Rc::new(RefCell::new(creator_builder(system_event, system_event_tag)));
 
         self.events
             .push(DeploymentEventInfo {
@@ -135,7 +156,9 @@ impl<GlobalProvider: IpcProvider + 'static> EventsProvider<GlobalProvider> {
     #[allow(dead_code)]
     pub(crate) fn get_event_creator(&self, system_event: &str) -> Option<EventCreator> {
         Some(Rc::clone(
-            &Into::<Tag>::into(system_event).find_in_collection(self.events.iter())?.creator,
+            &Into::<Tag>::into(system_event)
+                .find_in_collection(self.events.iter())?
+                .creator,
         ))
     }
 }
@@ -182,7 +205,10 @@ impl EventCreatorTrait for LocalEventCreator {
     }
 
     fn create_sync(&mut self, config: &DesignConfig) -> Option<Box<dyn ActionTrait>> {
-        Some(Sync::new(self.local_event.get_listener()?, config.max_concurrent_action_executions) as Box<dyn ActionTrait>)
+        Some(Sync::new(
+            self.local_event.get_listener()?,
+            config.max_concurrent_action_executions,
+        ) as Box<dyn ActionTrait>)
     }
 
     fn create_shutdown_notifier(&mut self) -> Option<Box<dyn ShutdownNotifier>> {
@@ -203,21 +229,28 @@ struct GlobalEventCreator<GlobalProvider: IpcProvider> {
 impl<GlobalProvider: IpcProvider> EventCreatorTrait for GlobalEventCreator<GlobalProvider> {
     fn create_trigger(&mut self, config: &DesignConfig) -> Option<Box<dyn ActionTrait>> {
         Some(Trigger::new(
-            self.global_provider.borrow_mut().get_notifier(self.system_event_name.as_str())?,
+            self.global_provider
+                .borrow_mut()
+                .get_notifier(self.system_event_name.as_str())?,
             config.max_concurrent_action_executions,
         ) as Box<dyn ActionTrait>)
     }
 
     fn create_sync(&mut self, config: &DesignConfig) -> Option<Box<dyn ActionTrait>> {
         Some(Sync::new(
-            self.global_provider.borrow_mut().get_listener(self.system_event_name.as_str())?,
+            self.global_provider
+                .borrow_mut()
+                .get_listener(self.system_event_name.as_str())?,
             config.max_concurrent_action_executions,
         ) as Box<dyn ActionTrait>)
     }
 
     fn create_shutdown_notifier(&mut self) -> Option<Box<dyn ShutdownNotifier>> {
         Some(Box::new(ShutdownNotifierImpl {
-            notifier: self.global_provider.borrow_mut().get_notifier(self.system_event_name.as_str())?,
+            notifier: self
+                .global_provider
+                .borrow_mut()
+                .get_notifier(self.system_event_name.as_str())?,
         }))
     }
 }
@@ -270,13 +303,17 @@ mod tests {
         let mut provider: EventsProvider = EventsProvider::new();
 
         provider
-            .specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| LocalEventCreator {
-                local_event: LocalEvent::new(evt_tag),
+            .specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| {
+                LocalEventCreator {
+                    local_event: LocalEvent::new(evt_tag),
+                }
             })
             .unwrap();
         // Try to specify again with the same system tag
-        let res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| LocalEventCreator {
-            local_event: LocalEvent::new(evt_tag),
+        let res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| {
+            LocalEventCreator {
+                local_event: LocalEvent::new(evt_tag),
+            }
         });
         assert_eq!(res.err().unwrap(), CommonErrors::AlreadyDone);
     }
@@ -286,8 +323,10 @@ mod tests {
         let config = DesignConfig::default();
         let mut provider: EventsProvider = EventsProvider::new();
 
-        let res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| LocalEventCreator {
-            local_event: LocalEvent::new(evt_tag),
+        let res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| {
+            LocalEventCreator {
+                local_event: LocalEvent::new(evt_tag),
+            }
         });
         assert!(res.is_ok());
 
@@ -304,8 +343,10 @@ mod tests {
         let config = DesignConfig::default();
         let mut provider: EventsProvider = EventsProvider::new();
 
-        let res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| LocalEventCreator {
-            local_event: LocalEvent::new(evt_tag),
+        let res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| {
+            LocalEventCreator {
+                local_event: LocalEvent::new(evt_tag),
+            }
         });
         assert!(res.is_ok());
 
@@ -326,13 +367,25 @@ mod tests {
         let config = DesignConfig::default();
         let mut provider: EventsProvider = EventsProvider::new();
 
-        let res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| LocalEventCreator {
-            local_event: LocalEvent::new(evt_tag),
+        let res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| {
+            LocalEventCreator {
+                local_event: LocalEvent::new(evt_tag),
+            }
         });
         assert!(res.is_ok());
 
-        let mut trigger_action = provider.get_event_creator("100").unwrap().borrow_mut().create_trigger(&config).unwrap();
-        let mut sync_action = provider.get_event_creator("100").unwrap().borrow_mut().create_sync(&config).unwrap();
+        let mut trigger_action = provider
+            .get_event_creator("100")
+            .unwrap()
+            .borrow_mut()
+            .create_trigger(&config)
+            .unwrap();
+        let mut sync_action = provider
+            .get_event_creator("100")
+            .unwrap()
+            .borrow_mut()
+            .create_sync(&config)
+            .unwrap();
 
         let trig_f = trigger_action.try_execute().unwrap();
 
@@ -357,18 +410,32 @@ mod tests {
         let config = DesignConfig::default();
         let mut provider: EventsProvider = EventsProvider::new();
 
-        let mut res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| LocalEventCreator {
-            local_event: LocalEvent::new(evt_tag),
+        let mut res = provider.specify_event("100", EventType::Local, &["UserEvt".into()], |_, evt_tag| {
+            LocalEventCreator {
+                local_event: LocalEvent::new(evt_tag),
+            }
         });
         assert!(res.is_ok());
-        res = provider.specify_event("101", EventType::Local, &["UserEvt".into()], |_, evt_tag| LocalEventCreator {
-            local_event: LocalEvent::new(evt_tag),
+        res = provider.specify_event("101", EventType::Local, &["UserEvt".into()], |_, evt_tag| {
+            LocalEventCreator {
+                local_event: LocalEvent::new(evt_tag),
+            }
         });
         assert!(res.is_ok());
 
-        let mut trigger_action = provider.get_event_creator("100").unwrap().borrow_mut().create_trigger(&config).unwrap();
+        let mut trigger_action = provider
+            .get_event_creator("100")
+            .unwrap()
+            .borrow_mut()
+            .create_trigger(&config)
+            .unwrap();
 
-        let mut sync_action = provider.get_event_creator("101").unwrap().borrow_mut().create_sync(&config).unwrap();
+        let mut sync_action = provider
+            .get_event_creator("101")
+            .unwrap()
+            .borrow_mut()
+            .create_sync(&config)
+            .unwrap();
 
         let trig_f = trigger_action.try_execute().unwrap();
 

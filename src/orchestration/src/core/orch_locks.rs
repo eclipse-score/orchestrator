@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 //!
 //! Orch locks provide some basic locking mechanisms for the orchestration actions. This objects
@@ -112,7 +112,9 @@ impl<T> DerefMut for OrchTryLockGuard<'_, T> {
 
 impl<T> Drop for OrchTryLockGuard<'_, T> {
     fn drop(&mut self) {
-        self.fake_mtx.is_used.store(false, ::core::sync::atomic::Ordering::SeqCst);
+        self.fake_mtx
+            .is_used
+            .store(false, ::core::sync::atomic::Ordering::SeqCst);
     }
 }
 
@@ -175,7 +177,7 @@ mod tests {
                         guard.with_mut(|v| *v = 43);
 
                         true
-                    }
+                    },
                     Err(_) => false,
                 }
             });
@@ -187,7 +189,7 @@ mod tests {
                     Ok(guard) => {
                         guard.with_mut(|v| *v = 44);
                         true
-                    }
+                    },
                     Err(_) => false,
                 };
             }

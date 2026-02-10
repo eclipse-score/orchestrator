@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,16 +9,21 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
-use super::action::{ActionBaseMeta, ActionExecError, ActionResult, ActionTrait, ReusableBoxFutureResult, UserErrValue};
+use super::action::{
+    ActionBaseMeta, ActionExecError, ActionResult, ActionTrait, ReusableBoxFutureResult, UserErrValue,
+};
 use crate::{
     api::design::Design,
     common::{orch_tag::OrchestrationTag, tag::Tag, DesignConfig},
 };
 use ::core::future::Future;
 
-use kyron::{core::types::UniqueWorkerId, futures::reusable_box_future::ReusableBoxFuture, futures::reusable_box_future::ReusableBoxFuturePool};
+use kyron::{
+    core::types::UniqueWorkerId, futures::reusable_box_future::ReusableBoxFuture,
+    futures::reusable_box_future::ReusableBoxFuturePool,
+};
 use kyron_foundation::prelude::CommonErrors;
 use std::sync::{Arc, Mutex};
 
@@ -36,7 +41,10 @@ pub struct Invoke {}
 impl Invoke {
     /// Create an invoke action out of an orchestration tag.
     pub fn from_tag(tag: &OrchestrationTag, config: &DesignConfig) -> Box<dyn ActionTrait> {
-        tag.action_provider().borrow_mut().provide_invoke(*tag.tag(), config).unwrap()
+        tag.action_provider()
+            .borrow_mut()
+            .provide_invoke(*tag.tag(), config)
+            .unwrap()
     }
 
     pub fn from_design(name: &str, design: &Design) -> Box<dyn ActionTrait> {
@@ -51,10 +59,18 @@ impl Invoke {
         Self::from_tag(&tag.unwrap(), design.config())
     }
 
-    pub(crate) fn from_fn(tag: Tag, action: InvokeFunctionType, worker_id: Option<UniqueWorkerId>, config: &DesignConfig) -> Box<dyn ActionTrait> {
+    pub(crate) fn from_fn(
+        tag: Tag,
+        action: InvokeFunctionType,
+        worker_id: Option<UniqueWorkerId>,
+        config: &DesignConfig,
+    ) -> Box<dyn ActionTrait> {
         Box::new(InvokeFn {
             action,
-            action_future_pool: ReusableBoxFuturePool::for_value(config.max_concurrent_action_executions, InvokeFn::action_future(action)),
+            action_future_pool: ReusableBoxFuturePool::for_value(
+                config.max_concurrent_action_executions,
+                InvokeFn::action_future(action),
+            ),
             worker_id,
             base: ActionBaseMeta {
                 tag,
@@ -66,7 +82,12 @@ impl Invoke {
         })
     }
 
-    pub(crate) fn from_async<A, F>(tag: Tag, action: A, worker_id: Option<UniqueWorkerId>, config: &DesignConfig) -> Box<dyn ActionTrait>
+    pub(crate) fn from_async<A, F>(
+        tag: Tag,
+        action: A,
+        worker_id: Option<UniqueWorkerId>,
+        config: &DesignConfig,
+    ) -> Box<dyn ActionTrait>
     where
         A: Fn() -> F + 'static + Send,
         F: Future<Output = InvokeResult> + 'static + Send,
@@ -75,7 +96,10 @@ impl Invoke {
 
         Box::new(InvokeAsync {
             action,
-            action_future_pool: ReusableBoxFuturePool::for_value(config.max_concurrent_action_executions, InvokeAsync::<A, F>::action_future(future)),
+            action_future_pool: ReusableBoxFuturePool::for_value(
+                config.max_concurrent_action_executions,
+                InvokeAsync::<A, F>::action_future(future),
+            ),
             worker_id,
             base: ActionBaseMeta {
                 tag,
@@ -171,7 +195,8 @@ impl InvokeFn {
         match instant_or_spawn {
             InstantOrSpawn::None => Ok(()),
             InstantOrSpawn::Instant(action) => invoke_result_into_action_result(action()),
-            InstantOrSpawn::Spawn(future, worker_id) => match spawn_from_reusable_on_dedicated(future, worker_id).await {
+            InstantOrSpawn::Spawn(future, worker_id) => match spawn_from_reusable_on_dedicated(future, worker_id).await
+            {
                 Ok(result) => result,
                 Err(_) => Err(ActionExecError::Internal),
             },
@@ -229,7 +254,8 @@ where
         match instant_or_spawn {
             InstantOrSpawn::None => Ok(()),
             InstantOrSpawn::Instant(action) => invoke_result_into_action_result(action.await),
-            InstantOrSpawn::Spawn(future, worker_id) => match spawn_from_reusable_on_dedicated(future, worker_id).await {
+            InstantOrSpawn::Spawn(future, worker_id) => match spawn_from_reusable_on_dedicated(future, worker_id).await
+            {
                 Ok(result) => result,
                 Err(_) => Err(ActionExecError::Internal),
             },
@@ -244,17 +270,25 @@ where
 {
     fn try_execute(&mut self) -> ReusableBoxFutureResult {
         if let Some(worker_id) = self.worker_id {
-            match self.action_future_pool.next(InvokeAsync::<A, F>::action_future((self.action)())) {
-                Ok(future) => self
-                    .base
-                    .reusable_future_pool
-                    .next(InvokeAsync::<A, F>::spawn_action(InstantOrSpawn::Spawn(future, worker_id))),
+            match self
+                .action_future_pool
+                .next(InvokeAsync::<A, F>::action_future((self.action)()))
+            {
+                Ok(future) => {
+                    self.base
+                        .reusable_future_pool
+                        .next(InvokeAsync::<A, F>::spawn_action(InstantOrSpawn::Spawn(
+                            future, worker_id,
+                        )))
+                },
                 Err(_) => Err(CommonErrors::GenericError),
             }
         } else {
             self.base
                 .reusable_future_pool
-                .next(InvokeAsync::<A, F>::spawn_action(InstantOrSpawn::Instant((self.action)())))
+                .next(InvokeAsync::<A, F>::spawn_action(InstantOrSpawn::Instant((self
+                    .action)(
+                ))))
         }
     }
 
@@ -289,8 +323,9 @@ impl<T: 'static + Send> InvokeMethod<T> {
             InstantOrSpawn::Instant((object, method)) => {
                 let mut object = object.lock().unwrap();
                 invoke_result_into_action_result(method(&mut object))
-            }
-            InstantOrSpawn::Spawn(future, worker_id) => match spawn_from_reusable_on_dedicated(future, worker_id).await {
+            },
+            InstantOrSpawn::Spawn(future, worker_id) => match spawn_from_reusable_on_dedicated(future, worker_id).await
+            {
                 Ok(result) => result,
                 Err(_) => Err(ActionExecError::Internal),
             },
@@ -305,10 +340,13 @@ impl<T: 'static + Send> ActionTrait for InvokeMethod<T> {
                 .action_future_pool
                 .next(InvokeMethod::<T>::action_future(Arc::clone(&self.object), self.method))
             {
-                Ok(future) => self
-                    .base
-                    .reusable_future_pool
-                    .next(InvokeMethod::<T>::spawn_action(InstantOrSpawn::Spawn(future, worker_id))),
+                Ok(future) => {
+                    self.base
+                        .reusable_future_pool
+                        .next(InvokeMethod::<T>::spawn_action(InstantOrSpawn::Spawn(
+                            future, worker_id,
+                        )))
+                },
                 Err(_) => Err(CommonErrors::GenericError),
             }
         } else {
@@ -357,7 +395,8 @@ where
         match instant_or_spawn {
             InstantOrSpawn::None => Ok(()),
             InstantOrSpawn::Instant(future) => invoke_result_into_action_result(future.await),
-            InstantOrSpawn::Spawn(future, worker_id) => match spawn_from_reusable_on_dedicated(future, worker_id).await {
+            InstantOrSpawn::Spawn(future, worker_id) => match spawn_from_reusable_on_dedicated(future, worker_id).await
+            {
                 Ok(result) => result,
                 Err(_) => Err(ActionExecError::Internal),
             },
@@ -375,20 +414,23 @@ where
         if let Some(worker_id) = self.worker_id {
             match self
                 .action_future_pool
-                .next(InvokeMethodAsync::<T, M, F>::action_future((self.method)(Arc::clone(&self.object))))
-            {
+                .next(InvokeMethodAsync::<T, M, F>::action_future((self.method)(Arc::clone(
+                    &self.object,
+                )))) {
                 Ok(future) => self
                     .base
                     .reusable_future_pool
-                    .next(InvokeMethodAsync::<T, M, F>::spawn_action(InstantOrSpawn::Spawn(future, worker_id))),
+                    .next(InvokeMethodAsync::<T, M, F>::spawn_action(InstantOrSpawn::Spawn(
+                        future, worker_id,
+                    ))),
                 Err(_) => Err(CommonErrors::GenericError),
             }
         } else {
             self.base
                 .reusable_future_pool
-                .next(InvokeMethodAsync::<T, M, F>::spawn_action(InstantOrSpawn::Instant((self.method)(
-                    Arc::clone(&self.object),
-                ))))
+                .next(InvokeMethodAsync::<T, M, F>::spawn_action(InstantOrSpawn::Instant(
+                    (self.method)(Arc::clone(&self.object)),
+                )))
         }
     }
     fn name(&self) -> &'static str {
@@ -457,8 +499,20 @@ mod tests {
         let object = Arc::new(Mutex::new(TestObject {}));
 
         // Capture the same action multiple times.
-        let mut action1 = super::Invoke::from_method("tag".into(), Arc::clone(&object), TestObject::test_method, None, &config);
-        let mut action2 = super::Invoke::from_method("tag".into(), Arc::clone(&object), TestObject::test_method, None, &config);
+        let mut action1 = super::Invoke::from_method(
+            "tag".into(),
+            Arc::clone(&object),
+            TestObject::test_method,
+            None,
+            &config,
+        );
+        let mut action2 = super::Invoke::from_method(
+            "tag".into(),
+            Arc::clone(&object),
+            TestObject::test_method,
+            None,
+            &config,
+        );
         // Execute the same invoke multiple times.
         assert!(action1.try_execute().is_ok());
         assert!(action1.try_execute().is_ok());
@@ -481,8 +535,10 @@ mod tests {
         let object = Arc::new(Mutex::new(TestObject {}));
 
         // Capture the same action multiple times.
-        let mut action1 = super::Invoke::from_method_async("tag".into(), Arc::clone(&object), test_method, None, &config);
-        let mut action2 = super::Invoke::from_method_async("tag".into(), Arc::clone(&object), test_method, None, &config);
+        let mut action1 =
+            super::Invoke::from_method_async("tag".into(), Arc::clone(&object), test_method, None, &config);
+        let mut action2 =
+            super::Invoke::from_method_async("tag".into(), Arc::clone(&object), test_method, None, &config);
         // Execute the same invoke multiple times.
         assert!(action1.try_execute().is_ok());
         assert!(action1.try_execute().is_ok());

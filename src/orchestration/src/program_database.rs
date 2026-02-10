@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use crate::actions::ifelse::{IfElse, IfElseCondition};
 use crate::common::orch_tag::OrchestrationTag;
@@ -52,7 +52,12 @@ impl ActionProvider {
         })
     }
 
-    pub(crate) fn provide_event(&mut self, tag: Tag, t: EventActionType, config: &DesignConfig) -> Option<Box<dyn ActionTrait>> {
+    pub(crate) fn provide_event(
+        &mut self,
+        tag: Tag,
+        t: EventActionType,
+        config: &DesignConfig,
+    ) -> Option<Box<dyn ActionTrait>> {
         self.data.get_ref(&tag).and_then(|data| match data {
             ActionData::Event(event_data) => match t {
                 EventActionType::Trigger => event_data.creator()?.borrow_mut().create_trigger(config),
@@ -102,9 +107,11 @@ impl ProgramDatabase {
             tag,
             ActionData::Invoke(InvokeData {
                 worker_id: None,
-                generator: Rc::new(move |tag: Tag, worker_id: Option<UniqueWorkerId>, config: &DesignConfig| {
-                    Invoke::from_fn(tag, action, worker_id, config)
-                }),
+                generator: Rc::new(
+                    move |tag: Tag, worker_id: Option<UniqueWorkerId>, config: &DesignConfig| {
+                        Invoke::from_fn(tag, action, worker_id, config)
+                    },
+                ),
             }),
         ) {
             Ok(_) => Ok(OrchestrationTag::new(tag, Rc::clone(&self.action_provider))),
@@ -125,9 +132,11 @@ impl ProgramDatabase {
             tag,
             ActionData::Invoke(InvokeData {
                 worker_id: None,
-                generator: Rc::new(move |tag: Tag, worker_id: Option<UniqueWorkerId>, config: &DesignConfig| {
-                    Invoke::from_async(tag, action.clone(), worker_id, config)
-                }),
+                generator: Rc::new(
+                    move |tag: Tag, worker_id: Option<UniqueWorkerId>, config: &DesignConfig| {
+                        Invoke::from_async(tag, action.clone(), worker_id, config)
+                    },
+                ),
             }),
         ) {
             Ok(_) => Ok(OrchestrationTag::new(tag, Rc::clone(&self.action_provider))),
@@ -149,9 +158,11 @@ impl ProgramDatabase {
             tag,
             ActionData::Invoke(InvokeData {
                 worker_id: None,
-                generator: Rc::new(move |tag: Tag, worker_id: Option<UniqueWorkerId>, config: &DesignConfig| {
-                    Invoke::from_method(tag, Arc::clone(&object), method, worker_id, config)
-                }),
+                generator: Rc::new(
+                    move |tag: Tag, worker_id: Option<UniqueWorkerId>, config: &DesignConfig| {
+                        Invoke::from_method(tag, Arc::clone(&object), method, worker_id, config)
+                    },
+                ),
             }),
         ) {
             Ok(_) => Ok(OrchestrationTag::new(tag, Rc::clone(&self.action_provider))),
@@ -161,7 +172,12 @@ impl ProgramDatabase {
     }
 
     /// Registers an async method on an object as an invoke action.
-    pub fn register_invoke_method_async<T, M, F>(&self, tag: Tag, object: Arc<Mutex<T>>, method: M) -> Result<OrchestrationTag, CommonErrors>
+    pub fn register_invoke_method_async<T, M, F>(
+        &self,
+        tag: Tag,
+        object: Arc<Mutex<T>>,
+        method: M,
+    ) -> Result<OrchestrationTag, CommonErrors>
     where
         T: 'static + Send,
         M: Fn(Arc<Mutex<T>>) -> F + 'static + Send + Clone,
@@ -173,9 +189,11 @@ impl ProgramDatabase {
             tag,
             ActionData::Invoke(InvokeData {
                 worker_id: None,
-                generator: Rc::new(move |tag: Tag, worker_id: Option<UniqueWorkerId>, config: &DesignConfig| {
-                    Invoke::from_method_async(tag, Arc::clone(&object), method.clone(), worker_id, config)
-                }),
+                generator: Rc::new(
+                    move |tag: Tag, worker_id: Option<UniqueWorkerId>, config: &DesignConfig| {
+                        Invoke::from_method_async(tag, Arc::clone(&object), method.clone(), worker_id, config)
+                    },
+                ),
             }),
         ) {
             Ok(_) => Ok(OrchestrationTag::new(tag, Rc::clone(&self.action_provider))),
@@ -192,14 +210,18 @@ impl ProgramDatabase {
             Ok(_) => {
                 trace!("Registered event with tag: {:?}", tag);
                 Ok(OrchestrationTag::new(tag, Rc::clone(&self.action_provider)))
-            }
+            },
             Err(FlatMapError::IsFull) => Err(CommonErrors::NoSpaceLeft),
             Err(FlatMapError::KeyAlreadyExists) => Err(CommonErrors::AlreadyDone),
         }
     }
 
     /// Registers an arc condition for an IfElse action.
-    pub fn register_if_else_arc_condition<C>(&mut self, tag: Tag, condition: Arc<C>) -> Result<OrchestrationTag, CommonErrors>
+    pub fn register_if_else_arc_condition<C>(
+        &mut self,
+        tag: Tag,
+        condition: Arc<C>,
+    ) -> Result<OrchestrationTag, CommonErrors>
     where
         C: IfElseCondition + Send + Sync + 'static,
     {
@@ -209,7 +231,9 @@ impl ProgramDatabase {
             tag,
             ActionData::IfElse(IfElseData {
                 generator: Rc::new(
-                    move |true_branch: Box<dyn ActionTrait>, false_branch: Box<dyn ActionTrait>, config: &DesignConfig| {
+                    move |true_branch: Box<dyn ActionTrait>,
+                          false_branch: Box<dyn ActionTrait>,
+                          config: &DesignConfig| {
                         IfElse::from_arc_condition(Arc::clone(&condition), true_branch, false_branch, config)
                     },
                 ),
@@ -222,7 +246,11 @@ impl ProgramDatabase {
     }
 
     /// Registers an arc mutex condition for an IfElse action.
-    pub fn register_if_else_arc_mutex_condition<C>(&mut self, tag: Tag, condition: Arc<Mutex<C>>) -> Result<OrchestrationTag, CommonErrors>
+    pub fn register_if_else_arc_mutex_condition<C>(
+        &mut self,
+        tag: Tag,
+        condition: Arc<Mutex<C>>,
+    ) -> Result<OrchestrationTag, CommonErrors>
     where
         C: IfElseCondition + Send + 'static,
     {
@@ -232,7 +260,9 @@ impl ProgramDatabase {
             tag,
             ActionData::IfElse(IfElseData {
                 generator: Rc::new(
-                    move |true_branch: Box<dyn ActionTrait>, false_branch: Box<dyn ActionTrait>, config: &DesignConfig| {
+                    move |true_branch: Box<dyn ActionTrait>,
+                          false_branch: Box<dyn ActionTrait>,
+                          config: &DesignConfig| {
                         IfElse::from_arc_mutex_condition(Arc::clone(&condition), true_branch, false_branch, config)
                     },
                 ),
@@ -273,7 +303,7 @@ impl ProgramDatabase {
                     invoke_data.worker_id = Some(worker_id);
 
                     Ok(())
-                }
+                },
                 _ => Err(CommonErrors::NotFound),
             }
         } else {
@@ -281,7 +311,11 @@ impl ProgramDatabase {
         }
     }
 
-    pub(crate) fn set_creator_for_events(&self, creator: EventCreator, user_event_tags: &[Tag]) -> Result<(), CommonErrors> {
+    pub(crate) fn set_creator_for_events(
+        &self,
+        creator: EventCreator,
+        user_event_tags: &[Tag],
+    ) -> Result<(), CommonErrors> {
         let mut ap = self.action_provider.borrow_mut();
         let mut ret = Ok(());
 
@@ -329,7 +363,10 @@ impl EventData {
     pub fn set_creator(&mut self, creator: EventCreator, tag: &Tag) {
         let prev = self.creator.replace(creator);
         if prev.is_some() {
-            warn!("Event with tag {:?} already has a binding, we replace it with new one provided.", tag);
+            warn!(
+                "Event with tag {:?} already has a binding, we replace it with new one provided.",
+                tag
+            );
         }
     }
 }
@@ -379,12 +416,18 @@ mod tests {
 
         let mut invoke = Invoke::from_tag(&tag, &config);
         let mut poller = OrchTestingPoller::new(invoke.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into())))
+        );
 
         let tag = pd.get_orchestration_tag("tag2".into()).unwrap();
         let mut invoke = Invoke::from_tag(&tag, &config);
         let mut poller = OrchTestingPoller::new(invoke.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into())))
+        );
     }
 
     #[test]
@@ -406,12 +449,18 @@ mod tests {
 
         let mut invoke = Invoke::from_tag(&tag, &config);
         let mut poller = OrchTestingPoller::new(invoke.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into())))
+        );
 
         let tag = pd.get_orchestration_tag("tag2".into()).unwrap();
         let mut invoke = Invoke::from_tag(&tag, &config);
         let mut poller = OrchTestingPoller::new(invoke.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into())))
+        );
     }
 
     #[test]
@@ -438,18 +487,30 @@ mod tests {
         let obj1 = Arc::new(Mutex::new(Test1 {}));
         let obj2 = Arc::new(Mutex::new(Test2 {}));
 
-        let tag = pd.register_invoke_method("tag1".into(), Arc::clone(&obj1), Test1::test1).unwrap();
-        assert!(pd.register_invoke_method("tag1".into(), Arc::clone(&obj1), Test1::test1).is_err());
-        assert!(pd.register_invoke_method("tag2".into(), Arc::clone(&obj2), Test2::test2).is_ok());
+        let tag = pd
+            .register_invoke_method("tag1".into(), Arc::clone(&obj1), Test1::test1)
+            .unwrap();
+        assert!(pd
+            .register_invoke_method("tag1".into(), Arc::clone(&obj1), Test1::test1)
+            .is_err());
+        assert!(pd
+            .register_invoke_method("tag2".into(), Arc::clone(&obj2), Test2::test2)
+            .is_ok());
 
         let mut invoke = Invoke::from_tag(&tag, &config);
         let mut poller = OrchTestingPoller::new(invoke.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into())))
+        );
 
         let tag = pd.get_orchestration_tag("tag2".into()).unwrap();
         let mut invoke = Invoke::from_tag(&tag, &config);
         let mut poller = OrchTestingPoller::new(invoke.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into())))
+        );
     }
 
     #[test]
@@ -474,18 +535,30 @@ mod tests {
         let obj1 = Arc::new(Mutex::new(Test1 {}));
         let obj2 = Arc::new(Mutex::new(Test2 {}));
 
-        let tag = pd.register_invoke_method_async("tag1".into(), Arc::clone(&obj1), test1).unwrap();
-        assert!(pd.register_invoke_method_async("tag1".into(), Arc::clone(&obj1), test1).is_err());
-        assert!(pd.register_invoke_method_async("tag2".into(), Arc::clone(&obj2), test2).is_ok());
+        let tag = pd
+            .register_invoke_method_async("tag1".into(), Arc::clone(&obj1), test1)
+            .unwrap();
+        assert!(pd
+            .register_invoke_method_async("tag1".into(), Arc::clone(&obj1), test1)
+            .is_err());
+        assert!(pd
+            .register_invoke_method_async("tag2".into(), Arc::clone(&obj2), test2)
+            .is_ok());
 
         let mut invoke = Invoke::from_tag(&tag, &config);
         let mut poller = OrchTestingPoller::new(invoke.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into())))
+        );
 
         let tag = pd.get_orchestration_tag("tag2".into()).unwrap();
         let mut invoke = Invoke::from_tag(&tag, &config);
         let mut poller = OrchTestingPoller::new(invoke.try_execute().unwrap());
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into())))
+        );
     }
 
     #[test]
@@ -510,7 +583,10 @@ mod tests {
         testing::mock::runtime::step();
         assert_eq!(testing::mock::runtime::remaining_tasks(), 0);
         // Check the result.
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into())))
+        );
     }
 
     #[test]
@@ -535,7 +611,10 @@ mod tests {
         testing::mock::runtime::step();
         assert_eq!(testing::mock::runtime::remaining_tasks(), 0);
         // Check the result.
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into())))
+        );
     }
 
     #[test]
@@ -566,7 +645,10 @@ mod tests {
         testing::mock::runtime::step();
         assert_eq!(testing::mock::runtime::remaining_tasks(), 0);
         // Check the result.
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into())))
+        );
     }
 
     #[test]
@@ -596,7 +678,10 @@ mod tests {
         testing::mock::runtime::step();
         assert_eq!(testing::mock::runtime::remaining_tasks(), 0);
         // Check the result.
-        assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))));
+        assert_eq!(
+            poller.poll(),
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into())))
+        );
     }
 
     fn make_tag(val: u32) -> Tag {

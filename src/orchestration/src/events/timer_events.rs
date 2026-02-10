@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use core::time::Duration;
 
@@ -61,8 +61,8 @@ impl ListenerTrait for TimerEvent {
                     let remaining = elapsed_in_full_cycles - elapsed;
                     let remaining_duration = Duration::from_millis(remaining as u64);
                     sleep::sleep(remaining_duration).await;
-                }
-                core::cmp::Ordering::Equal => {}
+                },
+                core::cmp::Ordering::Equal => {},
                 core::cmp::Ordering::Greater => {
                     warn!(
                         "TimerEvent: cycle duration exceeded, expected cycle: {}, elapsed: {} in iteration {}",
@@ -70,7 +70,7 @@ impl ListenerTrait for TimerEvent {
                         elapsed,
                         tick
                     );
-                }
+                },
             }
 
             Ok(())

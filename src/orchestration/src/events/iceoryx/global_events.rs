@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use kyron_foundation::prelude::trace;
 
@@ -94,7 +94,10 @@ impl IpcListener {
             type Output = ();
             fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
                 let waker_clone = cx.waker().clone();
-                let event_received = Event::get_instance().lock().unwrap().wake_on_event(self.listener, waker_clone);
+                let event_received = Event::get_instance()
+                    .lock()
+                    .unwrap()
+                    .wake_on_event(self.listener, waker_clone);
                 if event_received {
                     trace!("GlobalListener: received event for listener: {}", self.listener);
                     Poll::Ready(())

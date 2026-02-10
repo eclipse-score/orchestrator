@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 // Additional remarks:
 //
@@ -104,7 +104,11 @@ impl ProgramBuilder {
         self
     }
 
-    pub(crate) fn build(self, shutdown_events: &GrowableVec<ShutdownEvent>, config: &DesignConfig) -> Result<Program, CommonErrors> {
+    pub(crate) fn build(
+        self,
+        shutdown_events: &GrowableVec<ShutdownEvent>,
+        config: &DesignConfig,
+    ) -> Result<Program, CommonErrors> {
         if self.run_action.is_none() {
             trace!("Missing run action");
             return Err(CommonErrors::NoData);
@@ -217,7 +221,7 @@ impl Program {
                 Err(_) => {
                     trace!("Failed to execute run action or shutdown sync");
                     return Err(ActionExecError::Internal);
-                }
+                },
             };
 
             let iteration_duration = start_time.elapsed();
@@ -368,7 +372,9 @@ mod tests {
         let start_tag = design
             .register_invoke_method("StartAction".into(), Arc::clone(&flags), Flags::start)
             .unwrap();
-        let run_tag = design.register_invoke_method("RunAction".into(), Arc::clone(&flags), Flags::run).unwrap();
+        let run_tag = design
+            .register_invoke_method("RunAction".into(), Arc::clone(&flags), Flags::run)
+            .unwrap();
         let stop_tag = design
             .register_invoke_method("StopAction".into(), Arc::clone(&flags), Flags::stop)
             .unwrap();

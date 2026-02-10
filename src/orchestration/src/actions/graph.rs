@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use super::action::{ActionBaseMeta, ActionMeta, ActionResult, ActionTrait, ReusableBoxFutureResult};
 use crate::actions::action::ActionExecError;
@@ -112,20 +112,24 @@ impl LocalGraphActionBuilder {
     /// Panics if there are no nodes or if the graph contains a cycle.
     pub fn build(&mut self, design: &Design) -> Box<LocalGraphAction> {
         assert!(!self.nodes.is_empty(), "No nodes in the graph.");
-        let mut sorted_nodes = LocalGraphActionBuilder::sort(&mut self.nodes).expect("Graph contains a cycle, which is not allowed.");
+        let mut sorted_nodes =
+            LocalGraphActionBuilder::sort(&mut self.nodes).expect("Graph contains a cycle, which is not allowed.");
         let num_of_nodes = sorted_nodes.len();
         let nodes_edges = LocalGraphActionBuilder::build_edges(&mut sorted_nodes);
         // Create and return the LocalGraphAction
         Box::new(LocalGraphAction {
             base: ActionBaseMeta {
                 tag: "orch::internal::graph".into(),
-                reusable_future_pool: LocalGraphAction::create_reusable_future_pool(design.config.max_concurrent_action_executions),
+                reusable_future_pool: LocalGraphAction::create_reusable_future_pool(
+                    design.config.max_concurrent_action_executions,
+                ),
             },
             nodes: sorted_nodes,
             nodes_edges,
-            futures_vec_pool: ReusableVecPool::<NodeFuture>::new(design.config.max_concurrent_action_executions, |_| {
-                Vec::new_in_global(num_of_nodes)
-            }),
+            futures_vec_pool: ReusableVecPool::<NodeFuture>::new(
+                design.config.max_concurrent_action_executions,
+                |_| Vec::new_in_global(num_of_nodes),
+            ),
         })
     }
 
@@ -240,7 +244,11 @@ struct NodeFuture {
 }
 
 impl LocalGraphAction {
-    async fn execute_impl(meta: Tag, futures_vec: ReusableObject<Vec<NodeFuture>>, edges_arr: Arc<[Box<[NodeId]>]>) -> ActionResult {
+    async fn execute_impl(
+        meta: Tag,
+        futures_vec: ReusableObject<Vec<NodeFuture>>,
+        edges_arr: Arc<[Box<[NodeId]>]>,
+    ) -> ActionResult {
         tracing_adapter!(graph = ?meta, "Before executing nodes");
 
         let executor = DagExecutor::spawn_graph(futures_vec, edges_arr);
@@ -254,7 +262,10 @@ impl LocalGraphAction {
         let mut futures_vec_pool = ReusableVecPool::<NodeFuture>::new(pool_size, |_| Vec::new_in_global(1));
         let futures_vec = futures_vec_pool.next_object().unwrap();
         let edges_arr = Arc::new([]);
-        ReusableBoxFuturePool::<ActionResult>::for_value(pool_size, Self::execute_impl("dummy".into(), futures_vec, edges_arr))
+        ReusableBoxFuturePool::<ActionResult>::for_value(
+            pool_size,
+            Self::execute_impl("dummy".into(), futures_vec, edges_arr),
+        )
     }
 }
 
@@ -384,7 +395,7 @@ impl DagExecutor {
                                         Ok(Ok(_)) => {
                                             self.spawn_edge_nodes(index);
                                             continue; // No error, continue to next handle
-                                        }
+                                        },
                                         // In case of error, edge nodes are not spawned
                                         Ok(Err(err)) => Err(err),
 
@@ -396,20 +407,20 @@ impl DagExecutor {
                                     if execution_result.is_err() && index >= self.action_execution_result.0 {
                                         self.action_execution_result = (index, execution_result);
                                     }
-                                }
+                                },
                                 Poll::Pending => {
                                     is_done = false; // At least one handle is still pending
-                                }
+                                },
                             }
-                        }
+                        },
                         ActionMeta::Future(_) => {
                             // Future not yet spawned
-                        }
+                        },
                         ActionMeta::Empty => {
                             if self.state != FutureState::Polled {
                                 not_recoverable_error!("Join handle not available for the spawned future!");
                             }
-                        }
+                        },
                     }
                 }
 
@@ -418,11 +429,11 @@ impl DagExecutor {
                 } else {
                     FutureInternalReturn::polled()
                 }
-            }
+            },
             // In the Finished state, polling is an error.
             FutureState::Finished => {
                 not_recoverable_error!("Future polled after it finished!")
-            }
+            },
         };
         self.state.assign_and_propagate(result)
     }
@@ -574,11 +585,36 @@ mod tests {
         // Note: We use `in_sequence` here to enforce a deterministic, top-down execution order in tests.
         // In practice, nodes 2 and 3 could run in parallel, so this sequence does not reflect actual concurrency.
         // This approach ensures predictable test results, even though real execution may differ.
-        let action_1 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
-        let action_2 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
-        let action_3 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
-        let action_4 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
-        let action_5 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
+        let action_1 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
+        let action_2 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
+        let action_3 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
+        let action_4 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
+        let action_5 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
 
         // Create a design with default config and a graph builder
         let design = Design::new("Design".into(), DesignConfig::default());
@@ -687,14 +723,24 @@ mod tests {
         // Note: We use `in_sequence` here to enforce a deterministic, top-down execution order in tests.
         // In practice, nodes 2 and 3 could run in parallel, so this sequence does not reflect actual concurrency.
         // This approach ensures predictable test results, even though real execution may differ.
-        let action_1 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
+        let action_1 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
         let action_2 = Box::new(
             MockActionBuilder::<()>::new()
                 .will_once_return(Err(ActionExecError::Internal))
                 .in_sequence(&seq)
                 .build(),
         );
-        let action_3 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
+        let action_3 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
         // Action 4 and 5 should not be executed as action 2 fails for the graph below
         // Graph structure from left to right:
         //       2
@@ -751,7 +797,12 @@ mod tests {
         // Note: We use `in_sequence` here to enforce a deterministic, top-down execution order in tests.
         // In practice, nodes 2 and 3 could run in parallel, so this sequence does not reflect actual concurrency.
         // This approach ensures predictable test results, even though real execution may differ.
-        let action_1 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
+        let action_1 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
         let action_2 = Box::new(
             MockActionBuilder::<()>::new()
                 .will_once_return(Err(ActionExecError::Internal))
@@ -815,11 +866,36 @@ mod tests {
         // Note: We use `in_sequence` here to enforce a deterministic, top-down execution order in tests.
         // In practice, nodes 2 and 3 could run in parallel, so this sequence does not reflect actual concurrency.
         // This approach ensures predictable test results, even though real execution may differ.
-        let action_1 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
-        let action_2 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
-        let action_3 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
-        let action_4 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
-        let action_5 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
+        let action_1 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
+        let action_2 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
+        let action_3 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
+        let action_4 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
+        let action_5 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
 
         // Create a design with default config and a graph builder
         let design = Design::new("Design".into(), DesignConfig::default());
@@ -880,7 +956,12 @@ mod tests {
                 .in_sequence(&seq)
                 .build(),
         );
-        let action_5 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq).build());
+        let action_5 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq)
+                .build(),
+        );
 
         // Create a design with default config and a graph builder
         let design = Design::new("Design".into(), DesignConfig::default());
@@ -939,19 +1020,84 @@ mod tests {
         // Note: We use `in_sequence` here to enforce a deterministic, top-down execution order in tests.
         // In practice, few nodes run in parallel, so this sequence does not reflect actual concurrency.
         // This approach ensures predictable test results, even though real execution may differ.
-        let action_1 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq1).build());
-        let action_2 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq2).build());
-        let action_3 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq3).build());
-        let action_4 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq1).build());
-        let action_5 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq2).build());
-        let action_6 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq3).build());
-        let action_7 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq1).build());
-        let action_8 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq1).build());
-        let action_9 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq3).build());
-        let action_10 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq1).build());
-        let action_11 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq3).build());
-        let action_12 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq1).build());
-        let action_13 = Box::new(MockActionBuilder::<()>::new().will_once_return(Ok(())).in_sequence(&seq1).build());
+        let action_1 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq1)
+                .build(),
+        );
+        let action_2 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq2)
+                .build(),
+        );
+        let action_3 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq3)
+                .build(),
+        );
+        let action_4 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq1)
+                .build(),
+        );
+        let action_5 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq2)
+                .build(),
+        );
+        let action_6 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq3)
+                .build(),
+        );
+        let action_7 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq1)
+                .build(),
+        );
+        let action_8 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq1)
+                .build(),
+        );
+        let action_9 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq3)
+                .build(),
+        );
+        let action_10 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq1)
+                .build(),
+        );
+        let action_11 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq3)
+                .build(),
+        );
+        let action_12 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq1)
+                .build(),
+        );
+        let action_13 = Box::new(
+            MockActionBuilder::<()>::new()
+                .will_once_return(Ok(()))
+                .in_sequence(&seq1)
+                .build(),
+        );
 
         // Create a design with default config and a graph builder
         let design = Design::new("Design".into(), DesignConfig::default());

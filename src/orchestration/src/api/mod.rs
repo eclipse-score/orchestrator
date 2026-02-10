@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 //! # Orchestration API Module
 //!
@@ -105,7 +105,10 @@ impl OrchestrationApi<_EmptyTag> {
     ///
     /// Returns the updated `OrchestrationApi` instance with the new design added.
     pub fn add_design(mut self, design: Design) -> Self {
-        assert!(!self.designs.iter().any(|d| d.id() == design.id()), "Cannot insert same design again");
+        assert!(
+            !self.designs.iter().any(|d| d.id() == design.id()),
+            "Cannot insert same design again"
+        );
 
         self.designs.push(design);
         self
@@ -198,7 +201,12 @@ impl OrchProgramManager {
 
     /// Moves the named program out of the manager and returns it.
     pub fn get_program(&mut self, name: &str) -> Option<Program> {
-        if let Some((index, _)) = self.programs.iter().enumerate().find(|(_, program)| program.name == name) {
+        if let Some((index, _)) = self
+            .programs
+            .iter()
+            .enumerate()
+            .find(|(_, program)| program.name == name)
+        {
             self.programs.remove(index)
         } else {
             None

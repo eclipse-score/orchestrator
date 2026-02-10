@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use std::rc::Rc;
 
@@ -66,7 +66,11 @@ impl Deployment<'_> {
     }
 
     /// Binds user events to a timer with given params
-    pub fn bind_events_as_timer(&mut self, events_to_bind: &[Tag], cycle_duration: core::time::Duration) -> Result<(), CommonErrors> {
+    pub fn bind_events_as_timer(
+        &mut self,
+        events_to_bind: &[Tag],
+        cycle_duration: core::time::Duration,
+    ) -> Result<(), CommonErrors> {
         let mut ret = Err(CommonErrors::NotFound);
 
         let creator = self.api.events.specify_timer_event(events_to_bind, cycle_duration)?;
@@ -92,9 +96,13 @@ impl Deployment<'_> {
 
         for d in &mut self.api.designs {
             // This logic allows to report NotFound only if no design has the event.
-            ret =
-                d.db.set_invoke_worker_id(tag, worker_id)
-                    .or_else(|e| if e == CommonErrors::NotFound { ret } else { Err(e) })
+            ret = d.db.set_invoke_worker_id(tag, worker_id).or_else(|e| {
+                if e == CommonErrors::NotFound {
+                    ret
+                } else {
+                    Err(e)
+                }
+            })
         }
 
         ret

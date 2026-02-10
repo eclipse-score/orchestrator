@@ -1,6 +1,4 @@
-# rust formatter rules.
-# check configuration fields here: https://rust-lang.github.io/rustfmt/?version=v1.6.0&search=
-
-
-tab_spaces = 4
-max_width = 150
+# `rustfmt` should not be used with local configuration.
+# Use Bazel target for formatting.
+# E.g., `bazel run //:format.fix_Rust_with_rustfmt`
+DO_NOT_USE_LOCAL_RUSTFMT_TOML = false

@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 #![allow(dead_code)]
 
@@ -150,10 +150,12 @@ impl<InType: Clone + Send + 'static> MockActionBuilder<InType> {
         // The reusable objects pool must contain only one element to ensure every next_object() call
         // always returns the same MockFn object that preserves the call_count state from previous
         // call(s)
-        let mut reusable_mockfn_pool = ReusableObjects::<MockFn<InType, ActionResult>>::new(1, |_| self.mockfn_builder.clone().build());
+        let mut reusable_mockfn_pool =
+            ReusableObjects::<MockFn<InType, ActionResult>>::new(1, |_| self.mockfn_builder.clone().build());
 
         // Create a dummy future for the sake of initializing the reusable future pool's layout
-        let dummy_future = MockAction::execute_impl(reusable_mockfn_pool.next_object().unwrap(), self.action_input.clone());
+        let dummy_future =
+            MockAction::execute_impl(reusable_mockfn_pool.next_object().unwrap(), self.action_input.clone());
         let reusable_future_pool = ReusableBoxFuturePool::<ActionResult>::for_value(DEFAULT_POOL_SIZE, dummy_future);
 
         MockAction {
@@ -216,7 +218,10 @@ where
         Self {
             base: ActionBaseMeta {
                 tag: "orch::testing::TestAsyncAction".into(),
-                reusable_future_pool: ReusableBoxFuturePool::<ActionResult>::for_value(DEFAULT_POOL_SIZE, Self::wrap_future(future)),
+                reusable_future_pool: ReusableBoxFuturePool::<ActionResult>::for_value(
+                    DEFAULT_POOL_SIZE,
+                    Self::wrap_future(future),
+                ),
             },
             action,
         }
@@ -281,7 +286,7 @@ impl OrchTestingPoller {
                 Poll::Ready(r) => {
                     result = Some(r);
                     break;
-                }
+                },
                 Poll::Pending => continue,
             }
         }
@@ -328,7 +333,9 @@ mod tests {
 
     #[test]
     fn will_once_err_returns_correctly() {
-        let mut mock = MockActionBuilder::<()>::new().will_once_return(Err(ActionExecError::Internal)).build();
+        let mut mock = MockActionBuilder::<()>::new()
+            .will_once_return(Err(ActionExecError::Internal))
+            .build();
 
         let mut poller = OrchTestingPoller::new(mock.try_execute().unwrap());
         assert_eq!(poller.poll(), Poll::Ready(Err(ActionExecError::Internal)));
@@ -450,9 +457,27 @@ mod tests {
     #[test]
     fn mock_action_with_input() {
         let mut mock = MockActionBuilder::<usize>::new_with_input(42)
-            .will_once_invoke(|x| if x == 42 { Ok(()) } else { Err(ActionExecError::Internal) })
-            .will_once_invoke(|x| if x % 4 == 0 { Ok(()) } else { Err(ActionExecError::Internal) })
-            .will_repeatedly_invoke(|x| if x == 42 { Ok(()) } else { Err(ActionExecError::Internal) })
+            .will_once_invoke(|x| {
+                if x == 42 {
+                    Ok(())
+                } else {
+                    Err(ActionExecError::Internal)
+                }
+            })
+            .will_once_invoke(|x| {
+                if x % 4 == 0 {
+                    Ok(())
+                } else {
+                    Err(ActionExecError::Internal)
+                }
+            })
+            .will_repeatedly_invoke(|x| {
+                if x == 42 {
+                    Ok(())
+                } else {
+                    Err(ActionExecError::Internal)
+                }
+            })
             .build();
 
         let mut poller = OrchTestingPoller::new(mock.try_execute().unwrap());

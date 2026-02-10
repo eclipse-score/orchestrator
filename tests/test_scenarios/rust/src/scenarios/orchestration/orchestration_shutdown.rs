@@ -1,3 +1,15 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// <https://www.apache.org/licenses/LICENSE-2.0>
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
 use super::*;
 use crate::internals::runtime_helper::Runtime;
 use kyron_foundation::prelude::*;
@@ -65,7 +77,10 @@ fn shutdown_design_with_counter(name: &str, shutdown_tag: Tag, counter: ActionCo
                     .build(),
             )
             .with_shutdown_event(shutdown_tag)
-            .with_stop_action(Invoke::from_tag(&stop_tag, _design_instance.config()), std::time::Duration::from_secs(1));
+            .with_stop_action(
+                Invoke::from_tag(&stop_tag, _design_instance.config()),
+                std::time::Duration::from_secs(1),
+            );
         Ok(())
     });
 
@@ -79,7 +94,11 @@ fn shutdown_design(name: &str, shutdown_tag: Tag) -> Result<Design, CommonErrors
     // Create a program with actions
     design.add_program(file!(), move |_design_instance, builder| {
         builder
-            .with_run_action(SequenceBuilder::new().with_step(JustLogAction::new(action_name)).build())
+            .with_run_action(
+                SequenceBuilder::new()
+                    .with_step(JustLogAction::new(action_name))
+                    .build(),
+            )
             .with_shutdown_event(shutdown_tag)
             .with_stop_action(JustLogAction::new(stop_action_name), std::time::Duration::from_secs(1));
 
@@ -92,7 +111,8 @@ fn shutdown_design(name: &str, shutdown_tag: Tag) -> Result<Design, CommonErrors
 fn infinite_design() -> Result<Design, CommonErrors> {
     let mut design = Design::new("InfiniteDesign".into(), DesignConfig::default());
 
-    let pending_tag = design.register_invoke_async("PendingIndefinitely".into(), async || ::core::future::pending().await)?;
+    let pending_tag =
+        design.register_invoke_async("PendingIndefinitely".into(), async || ::core::future::pending().await)?;
 
     // Create a program with actions
     design.add_program(file!(), move |_design_instance, builder| {
@@ -175,8 +195,14 @@ impl Scenario for TwoProgramsSingleShutdown {
 
         // Build Orchestration
         let mut orch = Orchestration::new()
-            .add_design(shutdown_design_with_counter("ShutdownDesign1", shutdown_tag, counter_1.clone()).expect("Failed to create design 1"))
-            .add_design(shutdown_design_with_counter("ShutdownDesign2", shutdown_tag, counter_2.clone()).expect("Failed to create design 2"))
+            .add_design(
+                shutdown_design_with_counter("ShutdownDesign1", shutdown_tag, counter_1.clone())
+                    .expect("Failed to create design 1"),
+            )
+            .add_design(
+                shutdown_design_with_counter("ShutdownDesign2", shutdown_tag, counter_2.clone())
+                    .expect("Failed to create design 2"),
+            )
             .design_done();
 
         // Deployment part - specify event details
@@ -240,8 +266,14 @@ impl Scenario for TwoProgramsTwoShutdowns {
 
         // Build Orchestration
         let mut orch = Orchestration::new()
-            .add_design(shutdown_design_with_counter("ShutdownDesign1", shutdown_tag_1, counter_1.clone()).expect("Failed to create design 1"))
-            .add_design(shutdown_design_with_counter("ShutdownDesign2", shutdown_tag_2, counter_2.clone()).expect("Failed to create design 2"))
+            .add_design(
+                shutdown_design_with_counter("ShutdownDesign1", shutdown_tag_1, counter_1.clone())
+                    .expect("Failed to create design 1"),
+            )
+            .add_design(
+                shutdown_design_with_counter("ShutdownDesign2", shutdown_tag_2, counter_2.clone())
+                    .expect("Failed to create design 2"),
+            )
             .design_done();
 
         // Deployment part - specify event details
@@ -323,7 +355,9 @@ impl Scenario for GetAllShutdowns {
         let mut programs = program_manager.get_programs();
 
         // Get shutdown notifiers
-        let mut shutdowns = program_manager.get_shutdown_all_notifier().expect("Failed to get shutdown notifiers");
+        let mut shutdowns = program_manager
+            .get_shutdown_all_notifier()
+            .expect("Failed to get shutdown notifiers");
 
         // Put programs into runtime and run them
         let handle = rt.spawn(async move {
@@ -375,7 +409,9 @@ impl Scenario for OneProgramNotShut {
         let mut programs = program_manager.get_programs();
 
         // Get shutdown notifiers
-        let mut shutdowns = program_manager.get_shutdown_all_notifier().expect("Failed to get shutdown notifiers");
+        let mut shutdowns = program_manager
+            .get_shutdown_all_notifier()
+            .expect("Failed to get shutdown notifiers");
 
         // Put programs into runtime and run them
         let handle = rt.spawn(async move {

@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 use ::core::task::Waker;
@@ -38,8 +38,13 @@ use kyron_foundation::prelude::*;
 static EVENT_OBJ: LazyLock<Mutex<Event>> = LazyLock::new(|| {
     let mut evts: HashMap<usize, (Listener<ipc_threadsafe::Service>, Option<Waker>, bool)> = HashMap::new();
     // The internal event name shall be unique within the system. Otherwise, when two or more processes running, the trigger will be delivered to all.
-    let timestamp = (std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos() % 1_000_000_000) as u32;
-    let internal_event_name = "qorix_internal_waker_".to_string() + &process::id().to_string() + "_" + &timestamp.to_string();
+    let timestamp = (std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_nanos()
+        % 1_000_000_000) as u32;
+    let internal_event_name =
+        "qorix_internal_waker_".to_string() + &process::id().to_string() + "_" + &timestamp.to_string();
 
     let config = {
         let mut config = Config::default();
@@ -230,14 +235,17 @@ impl Event {
                             if poll_fd.revents & POLLIN != 0 {
                                 // Read the data and empty it.
                                 let mut buf = [0u8; 128];
-                                let recv_size = unsafe { libc::recv(poll_fds[index].fd, buf.as_mut_ptr() as *mut _, buf.len(), 0) };
+                                let recv_size =
+                                    unsafe { libc::recv(poll_fds[index].fd, buf.as_mut_ptr() as *mut _, buf.len(), 0) };
 
                                 if recv_size > 0 {
                                     if let Some((event_id, _)) = event_id_and_listener_fd.get(index) {
                                         if *event_id == 0 {
                                             // Internal event. Just set the flag and process others.
                                             update_poll_fds = true;
-                                        } else if let Some((_, waker, event_received)) = event_obj.lock().unwrap().events.get_mut(event_id) {
+                                        } else if let Some((_, waker, event_received)) =
+                                            event_obj.lock().unwrap().events.get_mut(event_id)
+                                        {
                                             trace!("[EHT] Received event: {}", event_id);
 
                                             // Set the flag for not to miss any event. This flag can be checked in wake_on_event function.
@@ -245,7 +253,10 @@ impl Event {
 
                                             // If there is any waker configured i.e.sync action is waiting for event, wake it and remove waker.
                                             if let Some(waker_obj) = waker {
-                                                trace!("[EHT] Wake awaiting thread using waker for event: {}", event_id);
+                                                trace!(
+                                                    "[EHT] Wake awaiting thread using waker for event: {}",
+                                                    event_id
+                                                );
                                                 waker_obj.wake_by_ref();
                                                 *waker = None;
                                             }

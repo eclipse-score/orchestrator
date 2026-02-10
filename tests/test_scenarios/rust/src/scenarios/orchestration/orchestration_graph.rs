@@ -1,3 +1,15 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// <https://www.apache.org/licenses/LICENSE-2.0>
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
 use super::*;
 use crate::internals::runtime_helper::Runtime;
 use kyron_foundation::prelude::*;
@@ -157,7 +169,10 @@ impl GraphHandler {
                 let mut graph_builder = LocalGraphActionBuilder::new();
                 let n0 = graph_builder.add_node(JustLogAction::new("node0"));
                 let n1 = graph_builder.add_node(JustLogAction::new("node1"));
-                graph_builder.add_edges(n0, &[n1]).add_edges(n1, &[n0]).build(design_instance)
+                graph_builder
+                    .add_edges(n0, &[n1])
+                    .add_edges(n1, &[n0])
+                    .build(design_instance)
             });
             Ok(())
         });
@@ -170,7 +185,12 @@ impl GraphHandler {
             let mut graph_builder = LocalGraphActionBuilder::new();
             let n0 = graph_builder.add_node(JustLogAction::new("node0"));
             let n1 = graph_builder.add_node(JustLogAction::new("node1"));
-            builder.with_run_action(graph_builder.add_edges(n0, &[n1]).add_edges(n1, &[n1]).build(design_instance));
+            builder.with_run_action(
+                graph_builder
+                    .add_edges(n0, &[n1])
+                    .add_edges(n1, &[n1])
+                    .build(design_instance),
+            );
             Ok(())
         });
         Ok(design)
@@ -222,7 +242,12 @@ impl GraphHandler {
             let n0 = graph_builder.add_node(JustLogAction::new("node0"));
             let n1 = graph_builder.add_node(JustLogAction::new("node1"));
             let n2 = graph_builder.add_node(JustLogAction::new("node2"));
-            builder.with_run_action(graph_builder.add_edges(n0, &[n1]).add_edges(n1, &[n2, n2]).build(design_instance));
+            builder.with_run_action(
+                graph_builder
+                    .add_edges(n0, &[n1])
+                    .add_edges(n1, &[n2, n2])
+                    .build(design_instance),
+            );
             Ok(())
         });
         Ok(design)
@@ -275,7 +300,10 @@ impl GraphHandler {
                         let n2 = graph_builder2.add_node(JustLogAction::new("node2"));
                         let n3 = graph_builder2.add_node(JustLogAction::new("node3"));
                         let n4 = graph_builder2.add_node(JustLogAction::new("node4"));
-                        graph_builder2.add_edges(n2, &[n3]).add_edges(n3, &[n4]).build(design_instance)
+                        graph_builder2
+                            .add_edges(n2, &[n3])
+                            .add_edges(n3, &[n4])
+                            .build(design_instance)
                     })
                     .build(design_instance),
             );
@@ -306,7 +334,10 @@ impl GraphHandler {
                 let n2 = graph_builder2.add_node(JustLogAction::new("node2"));
                 let n3 = graph_builder2.add_node(JustLogAction::new("node3"));
                 let n4 = graph_builder2.add_node(JustLogAction::new("node4"));
-                graph_builder2.add_edges(n2, &[n3]).add_edges(n3, &[n4]).build(design_instance)
+                graph_builder2
+                    .add_edges(n2, &[n3])
+                    .add_edges(n3, &[n4])
+                    .build(design_instance)
             });
             Ok(())
         });
@@ -482,7 +513,11 @@ impl Scenario for DedicatedGraph {
 pub fn graph_scenario_group() -> Box<dyn ScenarioGroup> {
     Box::new(ScenarioGroupImpl::new(
         "graphs",
-        vec![Box::new(GraphProgram), Box::new(IntegrationGraph), Box::new(DedicatedGraph)],
+        vec![
+            Box::new(GraphProgram),
+            Box::new(IntegrationGraph),
+            Box::new(DedicatedGraph),
+        ],
         vec![],
     ))
 }

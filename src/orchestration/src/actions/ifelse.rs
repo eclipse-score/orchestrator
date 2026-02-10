@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 
 use crate::{
     api::design::Design,
@@ -44,7 +44,12 @@ impl IfElse {
     }
 
     /// Create an if-else action out of a design.
-    pub fn from_design(name: &str, true_branch: Box<dyn ActionTrait>, false_branch: Box<dyn ActionTrait>, design: &Design) -> Box<dyn ActionTrait> {
+    pub fn from_design(
+        name: &str,
+        true_branch: Box<dyn ActionTrait>,
+        false_branch: Box<dyn ActionTrait>,
+        design: &Design,
+    ) -> Box<dyn ActionTrait> {
         let tag = design.get_orchestration_tag(name.into());
         assert!(tag.is_ok(), "Failed to create ifelse with name \"{}\"", name);
 
@@ -65,7 +70,10 @@ impl IfElse {
         Box::new(IfElseArc {
             base: ActionBaseMeta {
                 tag: TAG.into(),
-                reusable_future_pool: IfElseArc::<C>::create_future_pool(IfElseArc::<C>::choose_branch, config.max_concurrent_action_executions),
+                reusable_future_pool: IfElseArc::<C>::create_future_pool(
+                    IfElseArc::<C>::choose_branch,
+                    config.max_concurrent_action_executions,
+                ),
             },
             condition,
             true_branch,
@@ -236,7 +244,10 @@ mod tests {
         let mut ifelse = IfElse::from_arc_condition(Arc::new(TestCond {}), true_branch, false_branch, &config);
 
         let mut mock = OrchTestingPoller::new(ifelse.try_execute().unwrap());
-        assert_eq!(Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))), mock.poll());
+        assert_eq!(
+            Poll::Ready(Err(ActionExecError::UserError(0xcafe_u64.into()))),
+            mock.poll()
+        );
     }
 
     #[test]
@@ -260,6 +271,9 @@ mod tests {
         let mut ifelse = IfElse::from_arc_condition(Arc::new(TestCond {}), true_branch, false_branch, &config);
 
         let mut mock = OrchTestingPoller::new(ifelse.try_execute().unwrap());
-        assert_eq!(Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into()))), mock.poll());
+        assert_eq!(
+            Poll::Ready(Err(ActionExecError::UserError(0xbeef_u64.into()))),
+            mock.poll()
+        );
     }
 }

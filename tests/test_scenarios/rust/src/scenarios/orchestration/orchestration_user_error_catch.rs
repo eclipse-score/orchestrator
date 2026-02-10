@@ -1,3 +1,15 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// <https://www.apache.org/licenses/LICENSE-2.0>
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
 use crate::internals::runtime_helper::Runtime;
 use test_scenarios_rust::scenario::Scenario;
 
@@ -19,11 +31,15 @@ fn catch_checkpoint(e: &HandlerErrors) {
     match e {
         HandlerErrors::UserErr(user_error) => {
             let error_code: u64 = **user_error;
-            info!(id = "catch", error_code = error_code, "Caught unrecoverable user error: {user_error:?}");
-        }
+            info!(
+                id = "catch",
+                error_code = error_code,
+                "Caught unrecoverable user error: {user_error:?}"
+            );
+        },
         _ => {
             panic!("Unexpected error type: {e:?}");
-        }
+        },
     }
 }
 
@@ -38,10 +54,10 @@ fn recoverable_catch_checkpoint(e: &HandlerErrors, is_recoverable: bool) {
                 is_recoverable = is_recoverable,
                 "Caught {is_recoverable_str} user error: {user_error:?}. Returning {is_recoverable}"
             );
-        }
+        },
         _ => {
             panic!("Unexpected error type: {e:?}");
-        }
+        },
     }
 }
 
@@ -121,8 +137,12 @@ impl CatchSequenceUserError {
     fn unrecoverable_error_design(&self, error_code: u64) -> Result<Design, CommonErrors> {
         let mut design = Design::new("unrecoverable_error_design".into(), DesignConfig::default());
 
-        let user_error_tag = design.register_invoke_async("user_error_task".into(), user_error_task!("user_error_task", error_code))?;
-        let log_after_error_tag = design.register_invoke_async("log_after_error_task".into(), just_log_task!("log_after_error_task"))?;
+        let user_error_tag = design.register_invoke_async(
+            "user_error_task".into(),
+            user_error_task!("user_error_task", error_code),
+        )?;
+        let log_after_error_tag =
+            design.register_invoke_async("log_after_error_task".into(), just_log_task!("log_after_error_task"))?;
 
         design.add_program("catch_program", move |design, builder| {
             builder.with_run_action(
@@ -148,9 +168,14 @@ impl CatchSequenceUserError {
     fn recoverable_error_design(&self, error_code: u64, is_recoverable: bool) -> Result<Design, CommonErrors> {
         let mut design = Design::new("recoverable_error_false_design".into(), DesignConfig::default());
 
-        let user_error_tag = design.register_invoke_async("user_error_task".into(), user_error_task!("user_error_task", error_code))?;
-        let log_after_error_tag = design.register_invoke_async("log_after_error_task".into(), just_log_task!("log_after_error_task"))?;
-        let log_after_catch_tag = design.register_invoke_async("log_after_catch_task".into(), just_log_task!("log_after_catch_task"))?;
+        let user_error_tag = design.register_invoke_async(
+            "user_error_task".into(),
+            user_error_task!("user_error_task", error_code),
+        )?;
+        let log_after_error_tag =
+            design.register_invoke_async("log_after_error_task".into(), just_log_task!("log_after_error_task"))?;
+        let log_after_catch_tag =
+            design.register_invoke_async("log_after_catch_task".into(), just_log_task!("log_after_catch_task"))?;
 
         design.add_program("catch_program", move |design, builder| {
             builder.with_run_action(
@@ -241,7 +266,10 @@ impl CatchNestedSequenceUserError {
     fn create_design(&self, error_code: u64) -> Result<Design, CommonErrors> {
         let mut design = Design::new("nested_catch_design".into(), DesignConfig::default());
 
-        let user_error_tag = design.register_invoke_async("user_error_task".into(), user_error_task!("user_error_task", error_code))?;
+        let user_error_tag = design.register_invoke_async(
+            "user_error_task".into(),
+            user_error_task!("user_error_task", error_code),
+        )?;
         let just_log_tag = design.register_invoke_async("just_log_task".into(), just_log_task!("just_log_task"))?;
 
         design.add_program("catch_program", move |design, builder| {
@@ -319,10 +347,16 @@ impl CatchConcurrencyUserError {
         let task_b_name = valid_tasks[1].clone();
         let task_c_name = valid_tasks[2].clone();
 
-        let user_error_tag = design.register_invoke_async("user_error_task".into(), user_error_task!("user_error_task", error_code))?;
-        let just_log_a_tag = design.register_invoke_async(valid_tasks[0].clone().into(), just_log_task_owned!(task_a_name))?;
-        let just_log_b_tag = design.register_invoke_async(valid_tasks[1].clone().into(), just_log_task_owned!(task_b_name))?;
-        let just_log_c_tag = design.register_invoke_async(valid_tasks[2].clone().into(), just_log_task_owned!(task_c_name))?;
+        let user_error_tag = design.register_invoke_async(
+            "user_error_task".into(),
+            user_error_task!("user_error_task", error_code),
+        )?;
+        let just_log_a_tag =
+            design.register_invoke_async(valid_tasks[0].clone().into(), just_log_task_owned!(task_a_name))?;
+        let just_log_b_tag =
+            design.register_invoke_async(valid_tasks[1].clone().into(), just_log_task_owned!(task_b_name))?;
+        let just_log_c_tag =
+            design.register_invoke_async(valid_tasks[2].clone().into(), just_log_task_owned!(task_c_name))?;
         let just_log_tag = design.register_invoke_async("just_log_task".into(), just_log_task!("just_log_task"))?;
 
         design.add_program("catch_program", move |design, builder| {
@@ -396,10 +430,16 @@ impl CatchNestedConcurrencyUserError {
         let task_b_name = valid_tasks[1].clone();
         let task_c_name = valid_tasks[2].clone();
 
-        let user_error_tag = design.register_invoke_async("user_error_task".into(), user_error_task!("user_error_task", error_code))?;
-        let just_log_a_tag = design.register_invoke_async(valid_tasks[0].clone().into(), just_log_task_owned!(task_a_name))?;
-        let just_log_b_tag = design.register_invoke_async(valid_tasks[1].clone().into(), just_log_task_owned!(task_b_name))?;
-        let just_log_c_tag = design.register_invoke_async(valid_tasks[2].clone().into(), just_log_task_owned!(task_c_name))?;
+        let user_error_tag = design.register_invoke_async(
+            "user_error_task".into(),
+            user_error_task!("user_error_task", error_code),
+        )?;
+        let just_log_a_tag =
+            design.register_invoke_async(valid_tasks[0].clone().into(), just_log_task_owned!(task_a_name))?;
+        let just_log_b_tag =
+            design.register_invoke_async(valid_tasks[1].clone().into(), just_log_task_owned!(task_b_name))?;
+        let just_log_c_tag =
+            design.register_invoke_async(valid_tasks[2].clone().into(), just_log_task_owned!(task_c_name))?;
 
         design.add_program("catch_program", move |design, builder| {
             builder.with_run_action(
@@ -493,7 +533,8 @@ impl CatchDoubleMixedUserError {
             user_error_task_owned!(error_task_b_name, error_code_unrecoverable),
         )?;
         let just_log_tag = design.register_invoke_async("just_log_task".into(), just_log_task!("just_log_task"))?;
-        let log_after_catch_tag = design.register_invoke_async("log_after_catch_task".into(), just_log_task!("log_after_catch_task"))?;
+        let log_after_catch_tag =
+            design.register_invoke_async("log_after_catch_task".into(), just_log_task!("log_after_catch_task"))?;
 
         design.add_program("catch_program", move |design, builder| {
             builder.with_run_action(
@@ -520,10 +561,10 @@ impl CatchDoubleMixedUserError {
 
                                 recoverable_catch_checkpoint(&e, is_recoverable);
                                 is_recoverable
-                            }
+                            },
                             _ => {
                                 panic!("Unexpected error type: {e:?}");
-                            }
+                            },
                         })
                         .build(design),
                     )
@@ -581,10 +622,13 @@ impl CatchDoubleRecoverableUserError {
             error_task_a_name.clone().into(),
             delayed_user_error_task_owned!(error_task_a_name, error_code_a),
         )?;
-        let user_error_b_tag =
-            design.register_invoke_async(error_task_b_name.clone().into(), user_error_task_owned!(error_task_b_name, error_code_b))?;
+        let user_error_b_tag = design.register_invoke_async(
+            error_task_b_name.clone().into(),
+            user_error_task_owned!(error_task_b_name, error_code_b),
+        )?;
         let just_log_tag = design.register_invoke_async("just_log_task".into(), just_log_task!("just_log_task"))?;
-        let log_after_catch_tag = design.register_invoke_async("log_after_catch_task".into(), just_log_task!("log_after_catch_task"))?;
+        let log_after_catch_tag =
+            design.register_invoke_async("log_after_catch_task".into(), just_log_task!("log_after_catch_task"))?;
 
         design.add_program("catch_program", move |design, builder| {
             builder.with_run_action(
@@ -651,7 +695,10 @@ impl DoubleCatchSequence {
     fn create_design(&self, error_code: u64) -> Result<Design, CommonErrors> {
         let mut design = Design::new("double_catch_design".into(), DesignConfig::default());
 
-        let user_error_tag = design.register_invoke_async("user_error_task".into(), user_error_task!("user_error_task", error_code))?;
+        let user_error_tag = design.register_invoke_async(
+            "user_error_task".into(),
+            user_error_task!("user_error_task", error_code),
+        )?;
         let just_log_tag = design.register_invoke_async("just_log_task".into(), just_log_task!("just_log_task"))?;
 
         design.add_program("catch_program", move |design, builder| {
@@ -668,7 +715,10 @@ impl DoubleCatchSequence {
                                     .build(),
                             )
                             .catch(|e| {
-                                info!(id = "unexpected_catch", "Caught user error while only timeout error filter is set! {e:?}");
+                                info!(
+                                    id = "unexpected_catch",
+                                    "Caught user error while only timeout error filter is set! {e:?}"
+                                );
                             })
                             .build(design),
                         )

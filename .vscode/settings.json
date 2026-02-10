@@ -101,10 +101,18 @@
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer",
         "editor.formatOnSave": true,
+        "editor.rulers": [
+            150
+        ]
     },
-    "rust-analyzer.runnables.command": "cargo xtask",
+    "rust-analyzer.cargo.features": [
+        "qm"
+    ],
     "rust-analyzer.cargo.cfgs": [
-        "debug_assertions",
         "!miri"
     ],
+    "rust-analyzer.check.command": "clippy",
+    "rust-analyzer.rustfmt.overrideCommand": [
+        "${workspaceFolder}/.vscode/rustfmt.sh"
+    ]
 }
