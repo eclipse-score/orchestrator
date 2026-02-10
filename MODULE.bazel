@@ -12,7 +12,7 @@
 # *******************************************************************************
 module(
     name = "score_orchestrator",
-    version = "0.0.4",
+    version = "0.0.0",
     compatibility_level = 0,
 )
 
@@ -35,12 +35,17 @@ bazel_dep(name = "platforms", version = "1.0.0")
 
 # S-CORE process rules
 bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
-bazel_dep(name = "score_docs_as_code", version = "2.2.0")
-bazel_dep(name = "score_tooling", version = "1.0.4")
+bazel_dep(name = "score_docs_as_code", version = "3.0.0")
+bazel_dep(name = "score_tooling", version = "1.1.0")
 
-bazel_dep(name = "score_process", version = "1.4.0", dev_dependency = True)
-bazel_dep(name = "score_platform", version = "0.4.2", dev_dependency = True)  # This is main score repo
 bazel_dep(name = "score_virtualization", version = "0.0.1", dev_dependency = True)
+bazel_dep(name = "score_process", version = "1.4.3", dev_dependency = True)
+bazel_dep(name = "score_platform", version = "0.5.2", dev_dependency = True)  # This is main score repo
+git_override(
+    module_name = "score_platform",
+    commit = "6ef2b8c740eb538d9b9b44fabd3dea5e0a888da6",
+    remote = "https://github.com/qorix-group/score.git",
+)
 
 # Toolchains and extensions
 bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.2.2", dev_dependency = True)
@@ -127,4 +132,4 @@ use_repo(pip, "pip_score_venv_test")
 
 # Module deps
 bazel_dep(name = "score_crates", version = "0.0.7")
-bazel_dep(name = "score_kyron", version = "0.0.3")
+bazel_dep(name = "score_kyron", version = "0.1.0")
