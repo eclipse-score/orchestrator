@@ -169,7 +169,7 @@ impl Design {
         shutdown_events: &GrowableVec<ShutdownEvent>,
         container: &mut GrowableVec<Program>,
     ) -> Result<(), CommonErrors> {
-        while let Some(program_data) = self.programs.pop() {
+        while let Some(program_data) = self.programs.remove(0) {
             let mut builder = ProgramBuilder::new(program_data.0);
             (program_data.1)(&mut self, &mut builder)?;
             container.push(builder.build(shutdown_events, self.config())?);

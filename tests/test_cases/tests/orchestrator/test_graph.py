@@ -371,10 +371,13 @@ class TestGraphInConcurrency(CommonGraphProgramConfig):
 
 
 class TestGraphInSeparatePrograms(CommonGraphProgramConfig):
+    @pytest.fixture(scope="class")
+    def scenario_name(self) -> str:
+        return "orchestration.graphs.integration_graph"
+
     def graph_name(self) -> str:
         return "two_programs"
 
-    @pytest.mark.xfail(reason="https://github.com/qorix-group/inc_orchestrator_internal/issues/382")
     def test_valid(self, logs_nodes: LogContainer):
         n0 = logs_nodes.find_log(field="message", pattern="node0 was executed")
         n1 = logs_nodes.find_log(field="message", pattern="node1 was executed")
