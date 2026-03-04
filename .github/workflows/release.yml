@@ -55,13 +55,13 @@ jobs:
 
       - name: Build via Bazel
         run: |
-          echo "Running: bazel build //src/..."
-          bazel build //src/...
+          echo "Running: bazel build --lockfile_mode=error //src/..."
+          bazel build --lockfile_mode=error //src/...
 
       - name: Run Unit Tests via Bazel
         run: |
-          echo "Running: bazel test //:unit_tests"
-          bazel test //:unit_tests
+          echo "Running: bazel test --lockfile_mode=error //:unit_tests"
+          bazel test --lockfile_mode=error //:unit_tests
 
       - name: Create archive of test report
         run: |

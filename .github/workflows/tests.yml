@@ -43,5 +43,5 @@ jobs:
 
       - name: Run Tests via Bazel
         run: |
-          echo "Running: bazel test //src/..."
-          bazel test --config x86_64-linux  //src/...
+          echo "Running: bazel test --lockfile_mode=error //src/..."
+          bazel test --lockfile_mode=error --config x86_64-linux  //src/...

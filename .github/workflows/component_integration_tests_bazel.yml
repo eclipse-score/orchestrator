@@ -69,16 +69,16 @@ jobs:
 
       - name: Build Test Scenarios with Bazel
         run: |
-          bazel build --config x86_64-linux //tests/test_scenarios/rust:test_scenarios
+          bazel build --lockfile_mode=error --config x86_64-linux //tests/test_scenarios/rust:test_scenarios
 
       - name: Build Test Scenarios with Bazel (PR)
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         run: |
-          bazel test --config x86_64-linux //tests/test_cases:cit
+          bazel test --lockfile_mode=error --config x86_64-linux //tests/test_cases:cit
 
       - name: Build Test Scenarios with Bazel (Nightly)
         if: github.event_name == 'schedule'
         env:
           NIGHTLY: TRUE
         run: |
-          bazel test --config x86_64-linux //tests/test_cases:cit_repeat --test_timeout=1200
+          bazel test --lockfile_mode=error --config x86_64-linux //tests/test_cases:cit_repeat --test_timeout=1200
