@@ -80,6 +80,13 @@ Build all targets:
 bazel build //...
 ```
 
+## Troubleshooting build failures
+
+- If a build fails with an error indicating a stale lock file or dependency version mismatch, rerun
+  the update with `--lockfile_mode=update` (for example `bazel mod tidy --lockfile_mode=update`),
+  then commit the refreshed lock file(s) (for example `MODULE.bazel.lock`) and push them with your
+  change.
+
 ## Clippy
 
 - Clippy runs by default via `.bazelrc` when building Rust targets (rules_lint aspect).

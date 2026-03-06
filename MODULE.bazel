@@ -120,9 +120,6 @@ pip.parse(
     python_version = PYTHON_VERSION,
     requirements_lock = "//tests/test_cases:requirements.txt.lock",
 )
-
-use_repo(python)
-
 use_repo(pip, "pip_score_venv_test")
 
 # Module deps
