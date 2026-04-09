@@ -86,5 +86,9 @@
   {
     "version": "pr-81",
     "url": "https://eclipse-score.github.io/orchestrator/pr-81/"
+  },
+  {
+    "version": "pr-83",
+    "url": "https://eclipse-score.github.io/orchestrator/pr-83/"
   }
 ]
