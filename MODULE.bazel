@@ -37,18 +37,19 @@ bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
 bazel_dep(name = "score_docs_as_code", version = "4.0.1")
 single_version_override(
-    module_name="score_docs_as_code",
-    version="4.0.1"
+    module_name = "score_docs_as_code",
+    version = "4.0.1",
 )
+
 bazel_dep(name = "score_tooling", version = "1.1.0")
 
 bazel_dep(name = "score_virtualization", version = "0.0.1", dev_dependency = True)
 bazel_dep(name = "score_process", version = "1.4.3", dev_dependency = True)
 bazel_dep(name = "score_platform", version = "0.5.3", dev_dependency = True)  # This is main score repo
 git_override(
-    module_name="score_platform",
-    commit="f3bed3a38b0f5c3d350e4ce86720537f015d0640",
-    remote="https://github.com/eclipse-score/score.git"
+    module_name = "score_platform",
+    commit = "f3bed3a38b0f5c3d350e4ce86720537f015d0640",
+    remote = "https://github.com/eclipse-score/score.git",
 )
 
 # Toolchains and extensions
