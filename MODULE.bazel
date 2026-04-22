@@ -48,7 +48,7 @@ bazel_dep(name = "score_platform", version = "0.5.3", dev_dependency = True)  # 
 git_override(
     module_name="score_platform",
     commit="f3bed3a38b0f5c3d350e4ce86720537f015d0640",
-    remote="git@github.com:eclipse-score/score.git"
+    remote="https://github.com/eclipse-score/score.git"
 )
 
 # Toolchains and extensions
