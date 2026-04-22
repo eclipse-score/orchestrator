@@ -723,6 +723,7 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_kyron/0.1.0/MODULE.bazel": "90f752ac73c36172a3cca93bbc4d9e7109fd98787e2001369e58455e405a6159",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_kyron/0.1.0/source.json": "cf982acd3fbf6184fc1a9b96d57ca1a94f37e640d81298af62e34429d683b86e",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_process/1.3.2/MODULE.bazel": "a32390ef217cef9a811408b0a1c5aeed1398c377aa846f5d5416d7b95b4e4366",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_process/1.4.3/MODULE.bazel": "eb8243299a6ae3663618db5b4718e2c0d3c93f91a44994641e70106c400b23fb",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_process/1.5.3/MODULE.bazel": "65024b7f23ce5f72bd6ffd455a67c042ecf56d267f0bf63a90330a3241781b7a",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_process/1.5.3/source.json": "952814b8b4a99f59be2f506f23314febdf223e7ffbe6665f913c1e12fad9d5d4",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_python_basics/0.3.4/MODULE.bazel": "53bd16dfbb1fb8ecf6822fb26f9f4e8333bac7b14d12bb02bf84078063820a31",
