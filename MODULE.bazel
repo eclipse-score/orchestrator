@@ -41,10 +41,10 @@ single_version_override(
     version = "4.0.1",
 )
 
-bazel_dep(name = "score_tooling", version = "1.1.0")
+bazel_dep(name = "score_tooling", version = "1.1.2")
 
 bazel_dep(name = "score_virtualization", version = "0.0.1", dev_dependency = True)
-bazel_dep(name = "score_process", version = "1.4.3", dev_dependency = True)
+bazel_dep(name = "score_process", version = "1.5.3", dev_dependency = True)
 bazel_dep(name = "score_platform", version = "0.5.3", dev_dependency = True)  # This is main score repo
 git_override(
     module_name = "score_platform",
