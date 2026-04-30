@@ -129,9 +129,4 @@ use_repo(pip, "pip_score_venv_test")
 
 # Module deps
 bazel_dep(name = "score_crates", version = "0.0.7")
-bazel_dep(name = "score_kyron", version = "0.1.1")
-git_override(
-    module_name = "score_kyron",
-    commit = "e51832d669bfba4db4c27bcbfc277558a413bf12",
-    remote = "https://github.com/eclipse-score/kyron.git",
-)
+bazel_dep(name = "score_kyron", version = "0.1.2")
