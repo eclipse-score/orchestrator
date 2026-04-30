@@ -24,7 +24,7 @@ use crate::{
     events::events_provider::EventCreator,
 };
 use iceoryx2_bb_container::flatmap::{FlatMap, FlatMapError};
-use kyron::core::types::UniqueWorkerId;
+use kyron::common::types::UniqueWorkerId;
 use kyron_foundation::prelude::*;
 use std::{
     boxed::Box,

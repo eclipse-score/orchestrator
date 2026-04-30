@@ -26,12 +26,12 @@ orchestration = { path = "src/orchestration" }
 xtask = { path = "src/xtask" }
 orchestration_macros = { path = "src/orchestration_macros" }
 
-kyron-foundation = { git = "https://github.com/eclipse-score/kyron.git", rev = "caa9c0b367d18a09e969c1353e95a8c443ae896b" }
-kyron = { git = "https://github.com/eclipse-score/kyron.git", rev = "caa9c0b367d18a09e969c1353e95a8c443ae896b" }
-kyron-macros = { git = "https://github.com/eclipse-score/kyron.git", rev = "caa9c0b367d18a09e969c1353e95a8c443ae896b" }
-kyron-testing = { git = "https://github.com/eclipse-score/kyron.git", rev = "caa9c0b367d18a09e969c1353e95a8c443ae896b" }
-kyron-testing-macros = { git = "https://github.com/eclipse-score/kyron.git", rev = "caa9c0b367d18a09e969c1353e95a8c443ae896b" }
-logging_tracing = { git = "https://github.com/eclipse-score/kyron.git", rev = "caa9c0b367d18a09e969c1353e95a8c443ae896b" }
+kyron-foundation = { git = "https://github.com/eclipse-score/kyron.git", rev = "e51832d669bfba4db4c27bcbfc277558a413bf12" }
+kyron = { git = "https://github.com/eclipse-score/kyron.git", rev = "e51832d669bfba4db4c27bcbfc277558a413bf12" }
+kyron-macros = { git = "https://github.com/eclipse-score/kyron.git", rev = "e51832d669bfba4db4c27bcbfc277558a413bf12" }
+kyron-testing = { git = "https://github.com/eclipse-score/kyron.git", rev = "e51832d669bfba4db4c27bcbfc277558a413bf12" }
+kyron-testing-macros = { git = "https://github.com/eclipse-score/kyron.git", rev = "e51832d669bfba4db4c27bcbfc277558a413bf12" }
+logging_tracing = { git = "https://github.com/eclipse-score/kyron.git", rev = "e51832d669bfba4db4c27bcbfc277558a413bf12" }
 
 iceoryx2 = { git = "https://github.com/eclipse-iceoryx/iceoryx2.git", rev = "d3d1c9a727d3dc405733081923be5dba8213d6d8", default-features = false }
 iceoryx2-cal = { git = "https://github.com/eclipse-iceoryx/iceoryx2.git", rev = "d3d1c9a727d3dc405733081923be5dba8213d6d8" }

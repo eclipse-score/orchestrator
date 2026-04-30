@@ -21,7 +21,7 @@ use crate::{
 use ::core::future::Future;
 
 use kyron::{
-    core::types::UniqueWorkerId, futures::reusable_box_future::ReusableBoxFuture,
+    common::types::UniqueWorkerId, futures::reusable_box_future::ReusableBoxFuture,
     futures::reusable_box_future::ReusableBoxFuturePool,
 };
 use kyron_foundation::prelude::CommonErrors;

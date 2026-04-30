@@ -10,7 +10,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use kyron::core::types::UniqueWorkerId;
+use kyron::common::types::UniqueWorkerId;
 use kyron::prelude::ThreadParameters as AsyncRtThreadParameters;
 use kyron::runtime::*;
 use kyron::scheduler::SchedulerType;

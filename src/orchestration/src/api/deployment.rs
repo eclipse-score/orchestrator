@@ -21,7 +21,7 @@ use crate::{
     common::tag::Tag,
     program::ProgramBuilder,
 };
-use kyron::core::types::UniqueWorkerId;
+use kyron::common::types::UniqueWorkerId;
 use kyron_foundation::prelude::CommonErrors;
 
 pub struct Deployment<'a> {
