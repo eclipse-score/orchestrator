@@ -98,5 +98,9 @@
   {
     "version": "pr-88",
     "url": "https://eclipse-score.github.io/orchestrator/pr-88/"
+  },
+  {
+    "version": "v0.1.1",
+    "url": "https://eclipse-score.github.io/orchestrator/v0.1.1/"
   }
 ]
