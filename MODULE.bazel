@@ -23,8 +23,8 @@ bazel_dep(name = "rules_rust", version = "0.68.1-score")
 bazel_dep(name = "score_rust_policies", version = "0.0.4", dev_dependency = True)
 
 bazel_dep(name = "rules_cc", version = "0.2.14")
-bazel_dep(name = "aspect_rules_lint", version = "2.3.0")
-bazel_dep(name = "buildifier_prebuilt", version = "8.5.1")
+bazel_dep(name = "aspect_rules_lint", version = "2.3.0", dev_dependency = True)
+bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True)
 bazel_dep(name = "platforms", version = "1.0.0")
 
 # S-CORE process rules
