@@ -134,5 +134,9 @@
   {
     "version": "pr-128",
     "url": "https://eclipse-score.github.io/orchestrator/pr-128/"
+  },
+  {
+    "version": "pr-129",
+    "url": "https://eclipse-score.github.io/orchestrator/pr-129/"
   }
 ]
