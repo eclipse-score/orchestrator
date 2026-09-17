@@ -39,5 +39,5 @@ build --output_groups=+rules_lint_human
 build:lint --@aspect_rules_lint//lint:fail_on_violation=true
 build:lint --config=x86_64-linux
 
-# LLVM source-based coverage (@score_tooling//coverage): --config=llvm_cov
+# LLVM source-based coverage (@score_coverage): --config=llvm_cov
 import %workspace%/tools/coverage/coverage.bazelrc
